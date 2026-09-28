@@ -2,12 +2,12 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>WriteMax</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 :root{--bg:#04050b;--fg:#eef0ff;--mut:#8b90b3;--ok:#7fd39a;--bad:#ef6b6e;--acc:#7c8cff;--bd:rgba(255,255,255,.13)}
-*{box-sizing:border-box}html,body{height:100%;width:100%;margin:0;overflow:hidden}
+*{box-sizing:border-box}html,body{height:var(--vh,100%);width:100%;margin:0;overflow:hidden;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--fg);font-family:"Inter","SF Pro Display","Segoe UI","Noto Naskh Arabic",system-ui,sans-serif;display:flex;flex-direction:column}
 body::before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(40% 35% at 20% 25%,rgba(59,108,255,.38),transparent 70%),radial-gradient(38% 35% at 80% 30%,rgba(155,92,255,.34),transparent 70%),radial-gradient(45% 40% at 55% 85%,rgba(40,80,220,.3),transparent 70%);filter:blur(30px);animation:drift 18s ease-in-out infinite alternate}
 @keyframes drift{to{transform:translate(4%,-3%) scale(1.08)}}
@@ -136,7 +136,7 @@ header button.act{background:#fff;color:#0a1240;border-color:#fff;box-shadow:0 0
 .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.28s cubic-bezier(.3,1.4,.5,1)}
 .tog input:checked+.sw{background:linear-gradient(135deg,#4f86ff,#9b5cff);border-color:transparent}
 .tog input:checked+.sw::after{left:23px}
-.tabs.dis{opacity:.35;pointer-events:none}
+.tabs.dis>button{opacity:.35;pointer-events:none}
 textarea[readonly]{color:#c9ceff}
 /* ---- voice picker ---- */
 #vox{position:fixed;left:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:4px;padding:5px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px)}
@@ -158,13 +158,50 @@ canvas.ct{z-index:99995;width:100vw;height:100vh}
 .cd{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 10px 2px rgba(150,190,255,.9);z-index:99999}
 .rp{width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;border:2px solid rgba(160,200,255,.9);z-index:99997;animation:rip .65s ease-out forwards}
 @keyframes rip{from{opacity:1}to{transform:scale(9);opacity:0}}
+
+/* ---- audio controls ---- */
+.ib{padding:.5em;width:2.6em;height:2.6em;justify-content:center;border-radius:50%;flex:none}
+#pop{position:fixed;top:74px;left:16px;z-index:60;width:min(320px,calc(100vw - 24px));padding:14px 16px;border-radius:24px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);background:rgba(8,12,38,.86);border:1px solid rgba(140,175,255,.35);box-shadow:0 18px 40px rgba(0,0,10,.6)}
+#pop .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+#pop .pr{display:flex;align-items:center;gap:12px}#pop .pr span{min-width:3.6em;text-align:left;color:var(--mut);font-size:.85rem;font-family:system-ui}
+#pvs{display:flex;gap:6px;margin-top:14px}#pvs button{flex:1;justify-content:center;padding:.5em .4em;font-size:.85rem}#pvs button.sel{background:#fff;color:#0a1240;border-color:#fff}
+input[type=range]{direction:ltr;-webkit-appearance:none;appearance:none;flex:1;height:6px;border-radius:99px;background:linear-gradient(90deg,#4f86ff var(--p,100%),rgba(255,255,255,.16) var(--p,100%));outline:none;border:0;padding:0;margin:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 10px rgba(90,140,255,.8)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 10px rgba(90,140,255,.8)}
+.rep{position:absolute;top:14px;right:14px;z-index:3}
+#kb{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px;pointer-events:none}
+button{touch-action:manipulation}
+/* ---- mobile ---- */
+@media(max-width:700px){
+ header{display:flex;height:auto;min-height:56px;padding:8px 10px;gap:6px;justify-content:space-between}
+ header .lb{display:none}
+ header button{padding:.5em;width:2.7em;height:2.7em;justify-content:center;border-radius:50%}
+ header .side,header .side.end{gap:6px}.bar{padding:3px}
+ #pop{top:64px;left:8px}
+ .home2{padding:64px 14px 18px;gap:16px;justify-content:flex-start;overflow:auto}
+ .brand{left:14px;top:10px}
+ .lvls{flex-direction:column;gap:12px;width:100%;margin-top:6px}
+ .lvl{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-items:center;column-gap:16px;row-gap:2px;width:100%;min-width:0;padding:14px 18px;text-align:right;border-radius:22px}
+ .lvl .nz{grid-row:1/3;width:64px;height:64px}.lvl i{display:none}
+ .step{padding:14px 12px;gap:14px;justify-content:flex-start}
+ .src{max-height:none;min-height:200px}
+ .pane{padding:18px 14px 70px}
+ .stats{bottom:14px;padding:6px 16px;font-size:.85rem}
+ .keyh{display:none}
+ .ar{font-size:1.15rem;padding-top:16px}.center h2{font-size:2rem}
+ .item{flex-wrap:wrap;padding:10px 12px}.item .w{min-width:0;flex:1}.item .m{order:3;flex-basis:100%}
+ .page{padding:14px 12px}#toast{max-width:90vw;text-align:center}
+}
+.tabs .tog{padding:0 1em;margin:0 4px;gap:.6em;font-size:.9rem;border-inline:1px solid rgba(255,255,255,.14)}
+.anote{margin:-10px 0 0;display:flex;align-items:center;gap:.55em;color:#aeb6de;font-size:.92rem;min-height:1.6em;opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s}
+.anote.show{opacity:1;transform:none}.anote b{color:#7aa2ff;text-shadow:0 0 10px rgba(90,140,255,.9)}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#b3bfff"/></linearGradient></defs></svg>
-<header><div class="side"><button id="bh"><span class="ic" data-i="home"></span>الرئيسية</button></div>
-<div class="bar glass"><button id="n1"><span class="ic" data-i="target"></span>تدرّب على المحفوظ</button><button id="n3"><span class="ic" data-i="refresh"></span>راجع المحفوظ</button></div>
-<div class="side end"><span id="prog"></span><button id="bs"><span class="ic" data-i="star"></span>الكلمات المحفوظة</button></div></header>
+<header><div class="side"><button id="bh"><span class="ic" data-i="home"></span><span class="lb">الرئيسية</span></button></div>
+<div class="bar glass"><button id="n1" title="تدرّب على المحفوظ"><span class="ic" data-i="target"></span><span class="lb">تدرّب على المحفوظ</span></button><button id="n3" title="راجع المحفوظ"><span class="ic" data-i="refresh"></span><span class="lb">راجع المحفوظ</span></button></div>
+<div class="side end"><span id="prog"></span><button id="bv" class="ib" title="صوت الكلام"><span class="ic" data-i="talk"></span></button><button id="bfx" class="ib" title="المؤثرات الصوتية"><span class="ic" data-i="spk"></span></button><button id="bs" title="الكلمات المحفوظة"><span class="ic" data-i="star"></span><span class="lb">الكلمات المحفوظة</span></button></div></header>
 <div id="main"></div>
 <script>
 const $=s=>document.querySelector(s), M=$('#main');
@@ -177,30 +214,35 @@ let saved=DB.get();
 const TR={get(){try{return JSON.parse(localStorage.getItem('typing_trash')||'{}')}catch{return{}}},set(v){try{localStorage.setItem('typing_trash',JSON.stringify(v))}catch{}}};
 let trash=TR.get();
 /* sounds */
-let ac;function tone(f,d,type='sine',v=.05,t0=0){ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+t0;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d)}
+const aud=Object.assign({sv:100,ev:100,sm:0,em:0},(()=>{try{return JSON.parse(localStorage.getItem('typing_audio')||'{}')}catch{return{}}})());const saveAud=()=>{try{localStorage.setItem('typing_audio',JSON.stringify(aud))}catch{}};
+let ac;function tone(f,d,type='sine',v=.05,t0=0){const vol=aud.em?0:aud.ev/100;if(vol<=0)return;v*=vol*3.15;ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.state==='suspended'&&ac.resume();const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+t0;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);if(!ac.cp){ac.cp=ac.createDynamicsCompressor();ac.cp.connect(ac.destination)}o.connect(g).connect(ac.cp);o.start(t);o.stop(t+d)}
 const P=[523,587,659,784,880];
 const sfx={ok:i=>tone(P[i%5]*(1+(i%15>9?1:0)),.16,'sine',.042),bad:()=>{tone(150,.28,'triangle',.169);tone(110,.3,'sawtooth',.056,.05)},done:()=>[659,784,988].forEach((f,k)=>tone(f,.35,'sine',.05,k*.09))};
-function speak(t){try{speechSynthesis.cancel();t=t.replace(/\b(can|don|doesn|didn|won|isn|aren|wasn|weren|haven|hasn|hadn|couldn|wouldn|shouldn|mustn|needn)t\b/gi,"$1't").replace(/\bI(m|ve|ll|d)\b/g,"I'$1");const u=new SpeechSynthesisUtterance(t);applyVoice(u);speechSynthesis.speak(u)}catch{}}
+let _u=null,_spT;
+function speak(t){try{clearTimeout(_spT);speechSynthesis.cancel();if(aud.sm||aud.sv<=0)return;t=t.replace(/\b(can|don|doesn|didn|won|isn|aren|wasn|weren|haven|hasn|hadn|couldn|wouldn|shouldn|mustn|needn)t\b/gi,"$1't").replace(/\bI(m|ve|ll|d)\b/g,"I'$1");
+ _spT=setTimeout(()=>{try{const u=new SpeechSynthesisUtterance(t);applyVoice(u);_u=u;
+  u.onerror=e=>{if(e.error==='canceled'||e.error==='interrupted'||!u.voice)return;const v=new SpeechSynthesisUtterance(t);v.lang='en-US';v.volume=aud.sv/100;v.rate=.92;_u=v;speechSynthesis.speak(v)};
+  if(speechSynthesis.paused)speechSynthesis.resume();speechSynthesis.speak(u)}catch{}},matchMedia('(pointer:coarse)').matches?90:0)}catch{}}
 
-/* voices: one female + one male, best realistic voice available on the device */
-const VF=/aria|jenny|sonia|libby|maisie|michelle|emma|amy|\bava\b|allison|samantha|serena|karen|moira|tessa|zira|susan|hazel|female|victoria|kate|fiona|joanna|salli|kimberly|ivy|nova|shimmer|google us english/i;
+/* voices: girl 1, girl 2 (a different natural voice), boy */
+const VF=/aria|jenny|sonia|libby|maisie|michelle|emma|amy|\bava\b|allison|samantha|serena|karen|moira|tessa|zira|susan|hazel|female|victoria|kate|fiona|joanna|salli|kimberly|ivy|nova|shimmer|natasha|clara|olivia|lucy|catherine|linda|sara|laura|heather|ruth|stephanie|kendra|emily|google us english/i;
 const VM=/guy|davis|ryan|christopher|eric|roger|steffan|brian|mark|david|james|george|daniel|alex|aaron|fred|thomas|oliver|arthur|\bmale\b|rishi|gordon|matthew|joey|justin|kevin|russell|liam|jason|tony/i;
 const VBAD=/albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|junior|organ|trinoids|whisper|zarvox|superstar|wobble|jester|grandma|grandpa/i;
-let vg='f';try{vg=localStorage.getItem('typing_voice')==='m'?'m':'f'}catch{}
+let vg='f';try{const x=localStorage.getItem('typing_voice');vg=(x==='m'||x==='g'||x==='h')?x:'f'}catch{}
+const vq=v=>(/natural|neural|online|premium|enhanced|siri/i.test(v.name)?100:0)+(/google/i.test(v.name)?40:0)+(/en[-_]US/i.test(v.lang)?6:/en[-_]GB/i.test(v.lang)?4:0)+(v.localService?1:0);
 function voiceFor(g){let vs=[];try{vs=speechSynthesis.getVoices()}catch{}vs=vs.filter(v=>/^en/i.test(v.lang)&&!VBAD.test(v.name));
- const q=v=>(/natural|neural|online|premium|enhanced|siri/i.test(v.name)?100:0)+(/google/i.test(v.name)?40:0)+(/en[-_]US/i.test(v.lang)?6:/en[-_]GB/i.test(v.lang)?4:0)+(v.localService?1:0);
- const pool=vs.filter(v=>g==='f'?(VF.test(v.name)&&!/\bmale\b/i.test(v.name)):(VM.test(v.name)&&!/female/i.test(v.name)));
- const pick=a=>a.sort((x,y)=>q(y)-q(x))[0];
- if(pool.length)return{v:pick(pool),exact:1};
- const rest=vs.filter(v=>g==='f'?!VM.test(v.name):!VF.test(v.name));
- return{v:pick(rest.length?rest:vs),exact:0}}
-function applyVoice(u){const {v,exact}=voiceFor(vg);if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';u.rate=.92;u.pitch=exact?1:(vg==='f'?1.12:.82)}
-function buildVox(){let d=$('#vox');if(!d){d=document.createElement('div');d.id='vox';document.body.appendChild(d);
-  d.innerHTML=`<span class="vt">الصوت</span><button data-g="f">♀ أنثى</button><button data-g="m">♂ ذكر</button>`;
-  d.querySelectorAll('button').forEach(b=>b.onclick=()=>{vg=b.dataset.g;try{localStorage.setItem('typing_voice',vg)}catch{}buildVox();b.blur();speak('Hello, this is how I will read your sentences.')})}
- d.querySelectorAll('button').forEach(b=>{b.classList.toggle('sel',b.dataset.g===vg);const {v}=voiceFor(b.dataset.g);b.title=v?v.name:''})}
-try{speechSynthesis.onvoiceschanged=buildVox}catch{}
-buildVox();
+ const F=vs.filter(v=>VF.test(v.name)&&!/\bmale\b/i.test(v.name)&&!VM.test(v.name)).sort((a,b)=>vq(b)-vq(a));
+ const Mv=vs.filter(v=>VM.test(v.name)&&!/female/i.test(v.name)).sort((a,b)=>vq(b)-vq(a));
+ if(g==='m'||g==='h'){if(!Mv.length){const o=vs.filter(v=>!VF.test(v.name));return{v:o[g==='m'?0:1]||o[0]||vs[0],exact:0}}
+  if(g==='m')return{v:Mv[0],exact:1};
+  const r=Mv.slice(1),tp=r.length?vq(r[0]):0,al=r.find(v=>v.lang!==Mv[0].lang&&vq(v)>=tp-50)||r[0];
+  return al?{v:al,exact:1}:{v:Mv[0],exact:0}}
+ if(!F.length)return{v:vs[0],exact:0};
+ if(g==='f')return{v:F[0],exact:1};
+ const rest=F.slice(1),top=rest.length?vq(rest[0]):0;
+ const alt=rest.find(v=>v.lang!==F[0].lang&&vq(v)>=top-50)||rest[0];
+ return alt?{v:alt,exact:1}:{v:F[0],exact:0}}
+function applyVoice(u){const {v,exact}=voiceFor(vg);if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';u.volume=aud.sv/100;u.rate=((vg==='g'||vg==='h')&&!exact)?.96:.92;u.pitch=exact?1:(vg==='m'?.82:vg==='h'?.9:vg==='g'?1.2:1.12)}
 /* online helpers (free APIs, cached) */
 const tc={};
 async function tr(t){if(!t)return'';if(tc[t])return tc[t];try{const j=await (await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(t)+'&langpair=en|ar')).json();let r=j.responseData.translatedText;if(/MYMEMORY|QUERY LENGTH/i.test(r))r='—';return tc[t]=r}catch{return'—'}}
@@ -213,11 +255,12 @@ function segs(t,min,max){const out=[];let buf=[];const push=w=>{const n=Math.cei
 const STOP=new Set('because before would could should there their about which where while these those other after again being through though during another'.split(' '));
 function pickWords(t,n){const m=new Map();for(const s of sentences(t)){const cs=clean(s),tk=cs.split(' ');if(tk.length>25)continue;const sk=new Set(s.replace(/[’‘]/g,"'").split(/\s+/).filter(x=>x.includes("'")).map(x=>x.replace(/[^A-Za-z]/g,'').toLowerCase()));for(const w of tk){const l=w.toLowerCase();if(/^[a-z]{5,}$/.test(l)&&!STOP.has(l)&&!sk.has(l)&&!m.has(l))m.set(l,cs)}}return shuffle([...m]).slice(0,n).map(([w,sent])=>({w,sent}))}
 /* views */
-function nav(v){st.view=v;$('#bh').style.display=v==='home'?'none':'';speechSynthesis&&speechSynthesis.cancel();$('#prog').textContent='';document.querySelectorAll('header .act').forEach(b=>b.classList.remove('act'));const a={home:'#bh',saved:'#bs'}[v];a&&$(a).classList.add('act')}
+function nav(v){st.view=v;try{kb.blur()}catch{}$('#bh').style.display=v==='home'?'none':'';speechSynthesis&&speechSynthesis.cancel();$('#prog').textContent='';document.querySelectorAll('header .act').forEach(b=>b.classList.remove('act'));const a={home:'#bh',saved:'#bs'}[v];a&&$(a).classList.add('act')}
 const SP='M50 8C54 34 66 46 92 50 66 54 54 66 50 92 46 66 34 54 8 50 34 46 46 34 50 8Z',STAR=`<path d="${SP}"/>`;
 const neon=sh=>`<svg class="nz" viewBox="0 0 100 100"><g class="gl">${sh}</g><g class="md">${sh}</g><g class="co">${sh}</g></svg>`;
 const LOGO='data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="#050a24"/><g fill="none" stroke-linejoin="round"><path d="${SP}" stroke="#2a64ff" stroke-width="9" opacity=".6"/><path d="${SP}" stroke="#eaf2ff" stroke-width="3"/></g></svg>`);
 const SV={home:'<path d="M3 11 12 3l9 8v10H3z"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/>',book:'<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',refresh:'<path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/>',star:'<path d="m12 3 2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 16.9 6.4 20l1.3-6.2L3 9.5l6.3-.7z"/>',text:'<path d="M4 6h16M4 12h16M4 18h9"/>',file:'<path d="M6 3h8l5 5v13H6zM14 3v5h5"/>',pen:'<path d="M4 20l1-5L16.5 3.5 20 7 8.5 19z"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'};
+Object.assign(SV,{spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',talk:'<circle cx="9" cy="8" r="3.4"/><path d="M3 20.5a6 6 0 0 1 12 0"/><path d="M16.5 6.2a4.2 4.2 0 0 1 0 5.6M19.2 3.8a7.6 7.6 0 0 1 0 10.4"/>',talkoff:'<circle cx="9" cy="8" r="3.4"/><path d="M3 20.5a6 6 0 0 1 12 0"/><path d="M17 6l5 5M22 6l-5 5"/>',spk:'<path d="M4 9.5v5h3.5l5 4v-13l-5 4z"/><path d="M16 9.3a4 4 0 0 1 0 5.4M18.6 6.6a8 8 0 0 1 0 10.8"/>',spkoff:'<path d="M4 9.5v5h3.5l5 4v-13l-5 4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/>'});
 const I=n=>`<span class="ic"><svg viewBox="0 0 24 24">${SV[n]}</svg></span>`;
 document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=`<svg viewBox="0 0 24 24">${SV[e.dataset.i]}</svg>`);
 {const l=document.createElement('link');l.rel='icon';l.href=LOGO;document.head.appendChild(l)}
@@ -240,17 +283,16 @@ function levels(){nav('levels');
 const STORIES=["The old lighthouse keeper woke before dawn, as he had done for forty years. He climbed the narrow stairs, checked the lamp, and watched the grey sea slowly turn silver. Nobody visited the island anymore, yet he kept the light burning every night, just in case. One stormy evening, a small boat appeared through the fog, and its captain waved a trembling lantern. The keeper smiled, because he finally understood why he had stayed. Some duties matter even when nobody is watching, and a single light can bring a stranger safely home.", "Maya found a tiny key hidden inside a dusty library book. She turned it over in her hands, wondering which door it could possibly open. After searching every corridor, she noticed a small wooden box under the reading desk. Inside was a folded map, drawn carefully in faded blue ink. It led to the garden behind the school, where an ancient oak tree stood quietly. Beneath its roots she discovered a jar full of letters, written by students many years ago. Maya read them all, and then she added a letter of her own.", "A young merchant crossed the desert with three camels and a heavy bag of spices. The days were hot, the nights were cold, and the stars seemed closer than ever. Whenever he felt tired, he remembered the advice of his grandfather: walk slowly, but never stop. After two weeks, he reached a bustling city full of colors, music, and delicious smells. He sold everything before noon, then bought a small notebook to record his journey. That evening, he wrote the first page of a story he would tell for the rest of his life.", "Every morning, the baker opened his shop while the streets were still quiet. The warm smell of fresh bread drifted through the neighborhood and gently woke the sleepy children. He never advertised, because his customers always returned and brought their friends along. One winter, heavy snow blocked the roads, and nobody could reach the shop. So the baker packed his basket, wrapped himself in a thick scarf, and delivered bread door to door. People remembered that kindness for years, and the little shop became the heart of the whole town.", "The astronaut floated beside the window and stared at the blue planet below. Everything she loved was down there, small and fragile and beautiful. Mission control asked for a status report, and she answered calmly that all systems were working perfectly. Yet her heart felt strangely full, as if the silence itself were speaking. She thought about her family, her old school, and the first time she looked up at the night sky. Then she took a deep breath, smiled, and returned to her work, grateful for the journey.", "A curious fox stood at the edge of a wide, shining river. He wanted to reach the golden field on the other side, but the water looked deep and fast. A wise old turtle suggested that he should follow the stones, one careful step at a time. The fox laughed at first, because he preferred to run and jump. Eventually he listened, moved slowly, and crossed without even wetting his tail. From that day on, he understood that patience is often faster than courage alone.", "Every afternoon, an elderly man sat in the park and played chess against himself. A boy watched him for weeks, too shy to say a word. One day the man looked up and asked whether he would like to play. The boy lost the first game in less than ten minutes, but he was not discouraged. He returned the next day, then the next, and slowly his moves became braver and smarter. After a year, he finally won, and the old man shook his hand with proud, gentle eyes.", "It rained all morning, so the whole city moved beneath colorful umbrellas. Emma waited at the station, listening to the soft rhythm of water on the roof. Her train was late, but she did not mind, because she had a new book and a warm cup of tea. Across the platform, a stranger smiled at her and opened the same novel. They laughed quietly, and neither of them said anything for a while. Sometimes a rainy day gives you exactly the small surprise you did not know you needed."];
 const pickStory=p=>{const a=STORIES.filter(x=>x!==p);return a[Math.random()*a.length|0]};
 function step(m){nav('step');st.auto=pickStory(st.auto);M.innerHTML=`<div class="step"><h2 style="margin:0">${LBL[m]}</h2><p class="mut" style="margin:0">أضف القصة كنص أو كملف PDF، أو خلّ النص يُختار تلقائيًا</p>
-<label class="tog"><input type="checkbox" id="auto" ${st.autoOn?'checked':''}><span class="sw"></span><span>اختيار نص تلقائي بدون تدخّل مني</span></label>
-<div class="tabs glass" id="tabs"><button id="tt" class="sel">${I('text')}نص</button><button id="tp">${I('file')}PDF</button></div>
+<div class="tabs glass" id="tabs"><button id="tt" class="sel">${I('text')}نص</button><button id="ta">${I('spark')}تلقائي</button><button id="tp">${I('file')}PDF</button></div>
+<p class="anote" id="anote"><b>✦</b>سيتم توليد النص تلقائيًا</p>
 <div class="src"><textarea id="txt" dir="ltr" placeholder="Paste your story here…"></textarea><div class="drop" id="drop" style="display:none"><div>${I('file')}<p>اسحب ملف PDF هنا أو اضغط للاختيار</p><small class="mut" id="pn"></small></div></div></div><input type="file" id="f" accept="application/pdf" hidden>
 <div class="row" style="margin:0"><button class="pri" id="rs">${I('refresh')}نص آخر</button><button class="pri go" id="go">${I('pen')}ابدأ التدريب</button></div></div>`;
  const ta=$('#txt'),d=$('#drop');ta.oninput=()=>{if(!st.autoOn)st.text=ta.value};
- const tab=p=>{ta.style.display=p?'none':'block';d.style.display=p?'flex':'none';$('#tt').classList.toggle('sel',!p);$('#tp').classList.toggle('sel',!!p)};
- const apply=()=>{const on=st.autoOn;ta.readOnly=on;ta.value=on?st.auto:st.text;$('#tabs').classList.toggle('dis',on);$('#rs').style.display=on?'':'none';if(on)tab(0)};
- $('#auto').onchange=e=>{st.autoOn=e.target.checked;apply()};
- $('#rs').onclick=()=>{st.auto=pickStory(st.auto);ta.value=st.auto};
+ const tab=p=>{ta.style.display=p?'none':'block';d.style.display=p?'flex':'none';$('#tp').classList.toggle('sel',!!p);$('#ta').classList.toggle('sel',st.autoOn);$('#tt').classList.toggle('sel',!p&&!st.autoOn)};
+ const apply=(p=0)=>{const on=st.autoOn;$('#anote').classList.toggle('show',on);ta.readOnly=on;ta.value=on?st.auto:st.text;$('#rs').style.display=on?'':'none';tab(on?0:p)};
+  $('#rs').onclick=()=>{st.auto=pickStory(st.auto);ta.value=st.auto};
  apply();
- $('#tt').onclick=()=>tab(0);$('#tp').onclick=()=>tab(1);
+ $('#tt').onclick=()=>{st.autoOn=false;apply(0)};$('#tp').onclick=()=>{st.autoOn=false;apply(1)};$('#ta').onclick=()=>{st.autoOn=true;apply(0)};
  d.onclick=()=>$('#f').click();$('#f').onchange=e=>e.target.files[0]&&pdf(e.target.files[0]);
  d.ondragover=e=>{e.preventDefault();d.classList.add('h')};d.ondragleave=()=>d.classList.remove('h');d.ondrop=e=>{e.preventDefault();d.classList.remove('h');e.dataTransfer.files[0]&&pdf(e.dataTransfer.files[0])};
  $('#go').onclick=()=>start(m)}
@@ -266,7 +308,7 @@ const mk=(t,c)=>t.split(' ').map(w=>`<span class="wd">${[...w].map(x=>`<span cla
 function art(){const C=['#e8a04a','#4fa3a5','#c8433d','#f0c94b','#4a72b0','#7a5aa6','#e7a0a8','#5aa06a'];let s='<svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice">';for(let r=0;r<5;r++){let x=0;while(x<400){const w=14+Math.random()*22,h=70+Math.random()*30;s+=`<rect x="${x}" y="${r*115+110-h}" width="${w}" height="${h}" rx="2" fill="${C[Math.random()*8|0]}"/>`;x+=w+2}s+=`<rect y="${r*115+112}" width="400" height="7" fill="#a86a3c"/>`}return s+'</svg>'}
 function blank(it){let d=0;const h=(it.sent||'').split(' ').filter(Boolean).map(t=>(!d&&t.toLowerCase()===it.w)?(d=1,`<span class="box">${mk(it.w,'hid')}</span>`):esc(t)).join(' ');return d?h:h+' <span class="box">'+mk(it.w,'hid')+'</span>'}
 const same=it=>st.view==='play'&&st.items[st.idx]===it;
-function item(){if(st.idx>=st.items.length)return results();const it=st.items[st.idx];st.pos=0;st.typed=[];st.iw=new Set();st.shown=0;st.locked=false;st.target=st.mode==='w'?it.w:it.s;$('#prog').textContent=`${st.idx}/${st.items.length}`;
+function item0(){if(st.idx>=st.items.length)return results();const it=st.items[st.idx];st.pos=0;st.typed=[];st.iw=new Set();st.shown=0;st.locked=false;st.target=st.mode==='w'?it.w:it.s;$('#prog').textContent=`${st.idx}/${st.items.length}`;
  if(st.mode==='s'){M.innerHTML=`<section class="pane"><div class="tgt" dir="ltr">${mk(it.s,'ghost')}</div><div class="ar" id="ar">…</div><div class="stats"><b id="wpm">0</b> WPM &nbsp;|&nbsp; <b id="acc">100%</b> ACC</div><div class="keyh">اضغط <kbd>\\</kbd> للاستماع</div></section>`;
   speak(it.s);tr(it.s).then(t=>same(it)&&($('#ar').textContent=t));const nx=st.items[st.idx+1];nx&&tr(nx.s);setCur()}
  else{M.innerHTML=`<section class="pane center"><h2 id="a1">…</h2><p class="ar" id="a2"></p><p class="en" id="a3" dir="ltr"></p><div class="vl"></div><p class="sent" dir="ltr">${blank(it)}</p>${st.test?`<div class="row" style="margin-top:22px"><button id="hb1">${I('target')}Hint</button><button id="hb2">${I('book')}أظهر الإجابة</button></div>`:''}<div class="keyh"><kbd>Tab</kbd> تلميح · <kbd>\\</kbd> للاستماع</div><div class="stats"><b id="wpm">0</b> WPM &nbsp;|&nbsp; <b id="acc">100%</b> ACC</div></section>`;
@@ -338,6 +380,48 @@ function savedView(){nav('saved');const all=Object.values(saved),L=all.filter(x=
   if(on)for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];if(Math.hypot(a.x-b.x,a.y-b.y)<.6)continue;const k=i/pts.length;g.strokeStyle=`rgba(130,170,255,${k*.55})`;g.lineWidth=k*5;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()}
   requestAnimationFrame(loop)})();
 })();
+
+/* ---- audio popover (speech + effects): volume, mute, voice ---- */
+{const pop=document.createElement('div');pop.id='pop';pop.className='glass';pop.hidden=true;
+ pop.innerHTML='<div class="ph"><b id="pt"></b><button id="pm" class="ib"></button></div><div class="pr"><input type="range" id="ps" min="0" max="100"><span id="pp"></span></div><div id="pvs"></div>';document.body.appendChild(pop);
+ let cur='v';const key=()=>cur==='v'?'s':'e';
+ const demo=()=>{if(!aud.sm)speak('Hello, this is how I will read your sentences.')};
+ const paint=()=>{const k=key(),m=aud[k+'m'],vol=aud[k+'v'],ps=$('#ps');
+  $('#pt').textContent=cur==='v'?'صوت الكلام':'المؤثرات الصوتية';
+  $('#pm').innerHTML=I(cur==='v'?(m?'talkoff':'talk'):(m?'spkoff':'spk'));$('#pm').title=m?'إلغاء الكتم':'كتم';
+  ps.max=cur==='v'?100:150;ps.value=vol;ps.style.setProperty('--p',(vol/ps.max*100)+'%');$('#pp').textContent=m?'مكتوم':vol+'%';
+  $('#bv .ic').innerHTML=`<svg viewBox="0 0 24 24">${SV[aud.sm?'talkoff':'talk']}</svg>`;$('#bfx .ic').innerHTML=`<svg viewBox="0 0 24 24">${SV[aud.em?'spkoff':'spk']}</svg>`;
+  const pv=$('#pvs');pv.style.display=cur==='v'?'flex':'none';
+  pv.innerHTML=[['f','أنثى 1'],['g','أنثى 2'],['m','ذكر 1'],['h','ذكر 2']].map(([g,t])=>{const x=voiceFor(g).v;return`<button data-g="${g}" class="${g===vg?'sel':''}" title="${x?x.name:''}">${t}</button>`}).join('');
+  pv.querySelectorAll('button').forEach(b=>b.onclick=()=>{vg=b.dataset.g;try{localStorage.setItem('typing_voice',vg)}catch{}paint();b.blur();demo()})};
+ $('#ps').oninput=e=>{const k=key();aud[k+'v']=+e.target.value;if(aud[k+'v']>0)aud[k+'m']=0;saveAud();paint()};
+ $('#ps').onchange=e=>{e.target.blur();cur==='v'?demo():sfx.ok(2)};
+ $('#pm').onclick=e=>{const k=key();aud[k+'m']=aud[k+'m']?0:1;saveAud();paint();e.currentTarget.blur();if(!aud[k+'m'])cur==='v'?demo():sfx.ok(2)};
+ const open=w=>{if(!pop.hidden&&cur===w){pop.hidden=true;return}cur=w;pop.hidden=false;paint()};
+ $('#bv').onclick=e=>{e.stopPropagation();e.currentTarget.blur();open('v')};$('#bfx').onclick=e=>{e.stopPropagation();e.currentTarget.blur();open('e')};
+ document.addEventListener('click',e=>{if(!pop.hidden&&!pop.contains(e.target))pop.hidden=true});
+ try{speechSynthesis.onvoiceschanged=()=>!pop.hidden&&paint()}catch{}
+ paint()}
+/* ---- mobile: on-screen keyboard typing + replay button ---- */
+const coarse=matchMedia('(pointer:coarse)').matches;
+const kb=document.createElement('input');kb.id='kb';kb.setAttribute('autocomplete','off');kb.setAttribute('autocorrect','off');kb.setAttribute('autocapitalize','none');kb.spellcheck=false;document.body.appendChild(kb);
+let kprev='';function kbReset(){kb.value='';kprev=''}
+kb.addEventListener('input',()=>{if(st.view!=='play'||st.locked){kbReset();return}
+ const v=kb.value;let i=0;while(i<kprev.length&&i<v.length&&kprev[i]===v[i])i++;
+ for(let k=kprev.length;k>i;k--)back();
+ for(const ch of v.slice(i))press(ch);
+ kb.value=kprev=st.typed.join('')});
+function addRep(){const p=M.querySelector('.pane');if(!p)return;const b=document.createElement('button');b.className='ib rep';b.title='استمع';b.innerHTML=I('talk');b.onclick=e=>{e.stopPropagation();e.currentTarget.blur();const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):it.s)};p.appendChild(b)}
+function item(){kbReset();item0();if(st.view==='play'&&M.querySelector('.pane')){addRep();coarse&&kb.focus({preventScroll:true})}}
+M.addEventListener('click',()=>{coarse&&st.view==='play'&&kb.focus({preventScroll:true})});
+if(coarse&&window.visualViewport){const f=()=>{document.documentElement.style.setProperty('--vh',visualViewport.height+'px');scrollTo(0,0)};visualViewport.addEventListener('resize',f);f()}
+
+/* ---- unlock audio + speech on the first touch (mobile browsers block them until a gesture) ---- */
+let unlocked=0;
+function unlockAudio(){if(unlocked)return;unlocked=1;
+ try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume&&ac.resume();const b=ac.createBuffer(1,1,22050),o=ac.createBufferSource();o.buffer=b;o.connect(ac.destination);o.start(0)}catch{}
+ try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}catch{}}
+['pointerdown','touchstart','keydown','click'].forEach(ev=>addEventListener(ev,unlockAudio,{passive:true}));
 
 home();
 </script>
