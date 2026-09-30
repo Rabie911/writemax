@@ -43,9 +43,6 @@ header{height:68px;display:grid;grid-template-columns:1fr auto 1fr;align-items:c
 .bar.glass{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px)}
 .bar button{border:0;background:none;box-shadow:none}
 .bar button:hover{background:rgba(255,255,255,.1)}
-header button.act{background:#fff;color:#0a1240;border-color:#fff;box-shadow:0 0 16px rgba(255,255,255,.3)}
-header button.act::after{display:none}
-header button.act .ic svg{stroke:#1a2a9a;filter:none}
 #main{flex:1;min-height:0;width:100%;display:flex}
 @keyframes pin{from{opacity:0;transform:translateY(16px) scale(.985)}}
 @keyframes float{50%{translate:0 -12px}}
@@ -63,9 +60,6 @@ header button.act .ic svg{stroke:#1a2a9a;filter:none}
 .lvls{display:flex;gap:clamp(24px,6vw,90px);justify-content:center;margin-top:10px}
 .lvl{position:relative;background:rgba(255,255,255,.035);flex-direction:column;gap:10px;padding:26px 30px 20px;min-width:clamp(150px,17vw,215px);border-radius:30px;overflow:visible;backdrop-filter:blur(6px);transition:border-color .3s,box-shadow .3s,background .3s,transform .35s cubic-bezier(.2,.8,.2,1);animation:pin .7s cubic-bezier(.2,.8,.2,1) backwards}
 .lvl:nth-child(2){animation-delay:.1s}.lvl:nth-child(3){animation-delay:.2s}
-.lvl::after{display:none}
-.lvl:hover{transform:translateY(-6px);border-color:rgba(130,170,255,.75);background:rgba(90,130,255,.08);box-shadow:0 0 26px rgba(70,120,255,.3),inset 0 0 20px rgba(70,120,255,.14)}
-.lvl:active{transform:translateY(-2px) scale(.985)}
 .lvl .nz{width:clamp(80px,10vw,120px);height:clamp(80px,10vw,120px);transition:.3s;animation:float 5s ease-in-out infinite}
 .lvl:hover .nz{transform:scale(1.1) rotate(-3deg)}.lvl:hover .nz .gl{opacity:1}
 .lvl b{font-size:1.15rem}.lvl small{color:#a6aedb;font-size:.85rem}
@@ -80,8 +74,6 @@ header button.act .ic svg{stroke:#1a2a9a;filter:none}
 .step{width:100%;height:100%;padding:20px 4vw;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;overflow:auto;text-align:center;animation:pin .6s cubic-bezier(.2,.8,.2,1)}
 .tabs{display:inline-flex;gap:4px;padding:5px;border-radius:999px}
 .tabs button{border:0;background:none;box-shadow:none}
-.tabs button.sel{background:#fff;color:#0a1240;border-color:#fff}
-.tabs button.sel .ic svg{stroke:#1a2a9a;filter:none}
 .anote{margin:-10px 0 0;display:flex;align-items:center;gap:.55em;color:#b4bbe3;font-size:.92rem;min-height:1.6em;opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s}
 .anote.show{opacity:1;transform:none}.anote b{color:#7aa2ff;text-shadow:0 0 10px rgba(90,140,255,.9)}
 .src{width:min(920px,100%);flex:1;min-height:170px;max-height:46vh;display:flex}
@@ -150,7 +142,7 @@ h3{margin:22px 0 6px}
 #pop{position:fixed;top:74px;left:16px;z-index:60;width:min(320px,calc(100vw - 24px));padding:14px 16px;border-radius:24px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);background:rgba(8,12,38,.86);border:1px solid rgba(140,175,255,.35);box-shadow:0 18px 40px rgba(0,0,10,.6)}
 #pop .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 #pop .pr{display:flex;align-items:center;gap:12px}#pop .pr span{min-width:3.6em;text-align:left;color:var(--mut);font-size:.85rem;font-family:var(--fd)}
-#pvs{display:flex;gap:6px;margin-top:14px}#pvs button{flex:1;justify-content:center;padding:.5em .4em;font-size:.85rem}#pvs button.sel{background:#fff;color:#0a1240;border-color:#fff}
+#pvs{display:flex;gap:6px;margin-top:14px}#pvs button{flex:1;justify-content:center;padding:.5em .4em;font-size:.85rem}
 input[type=range]{direction:ltr;-webkit-appearance:none;appearance:none;flex:1;height:6px;border-radius:99px;background:linear-gradient(90deg,#4f86ff var(--p,100%),rgba(255,255,255,.16) var(--p,100%));outline:none;border:0;padding:0;margin:0}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 10px rgba(90,140,255,.8)}
 input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 10px rgba(90,140,255,.8)}
@@ -194,6 +186,71 @@ canvas.ct{z-index:99995;width:100vw;height:100vh}
  .tiles{gap:8px}.tile{padding:14px 6px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}}
+
+/* ---- liquid glass v2: light glass -> violet glow on hover ---- */
+:root{--lg:linear-gradient(180deg,rgba(255,255,255,.88),rgba(224,228,244,.72));--vio:linear-gradient(135deg,#3a45b3 0%,#5a56da 50%,#7f5cf2 100%)}
+button{isolation:isolate;--mx:50%;--my:50%;color:#121428;background:var(--lg);border:1px solid rgba(255,255,255,.78);backdrop-filter:blur(14px) saturate(1.5);-webkit-backdrop-filter:blur(14px) saturate(1.5);box-shadow:0 8px 20px rgba(0,0,20,.32),0 2px 5px rgba(0,0,20,.18),inset 0 1px 1px #fff,inset 0 -6px 12px rgba(150,160,210,.28);transition:color .3s,border-color .3s,box-shadow .35s,transform .25s}
+button::before,button::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .35s}
+button::before{background:var(--vio)}
+button::after{background:radial-gradient(circle var(--gr,90px) at var(--mx) var(--my),rgba(255,255,255,.95) 0,rgba(255,255,255,.55) 18%,rgba(238,140,255,.6) 52%,rgba(150,110,255,0) 100%);animation:none}
+button:hover,button.sel,button.act{color:#fff;text-shadow:0 1px 8px rgba(40,20,150,.8);border-color:rgba(195,180,255,.85);box-shadow:0 10px 26px rgba(90,70,240,.5),0 0 22px rgba(150,110,255,.45),inset 0 1px 1px rgba(255,255,255,.6),inset 0 0 14px rgba(255,255,255,.18)}
+button:hover::before,button.sel::before,button.act::before{opacity:1}
+button:hover::after{opacity:1;animation:none}
+button:active{transform:scale(.97)}
+button.on{color:#0b7a45;border-color:#38b072}
+button .ic{background:none;border-color:transparent;box-shadow:none;transition:.3s}
+button .ic svg{stroke:#14162b;fill:none;filter:none;transition:.3s}
+button:hover .ic,button.sel .ic,button.act .ic{background:radial-gradient(circle at 30% 25%,rgba(210,230,255,.7),rgba(60,110,255,.35) 55%,rgba(20,40,160,.5));border-color:rgba(190,205,255,.7);box-shadow:inset 0 0 8px rgba(120,150,255,.6),0 0 10px rgba(90,110,255,.45)}
+button:hover .ic svg,button.sel .ic svg,button.act .ic svg{stroke:#fff;filter:drop-shadow(0 0 3px rgba(150,180,255,.9))}
+.tabs,.bar.glass{background:var(--lg);border:1px solid rgba(255,255,255,.78);backdrop-filter:blur(14px) saturate(1.5);-webkit-backdrop-filter:blur(14px) saturate(1.5);box-shadow:0 8px 20px rgba(0,0,20,.32),inset 0 1px 1px #fff,inset 0 -6px 12px rgba(150,160,210,.28)}
+.tabs button,.bar button{background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.tabs button.sel,.bar button.sel{box-shadow:0 4px 14px rgba(90,70,240,.45)}
+#pvs button.sel{color:#fff}
+/* level cards: fan on an arc, driven by the mouse */
+.lvls{--cw:clamp(150px,16vw,210px);position:relative;display:block;width:min(820px,94vw);height:clamp(300px,46vh,430px);margin-top:10px;gap:0}
+.lvl{position:absolute;left:calc(50% - var(--cw)/2);bottom:0;width:var(--cw);height:clamp(250px,40vh,360px);min-width:0;padding:22px 16px;justify-content:center;border-radius:28px;--gr:210px;transform-origin:50% calc(100% + 560px);transform:rotate(var(--a,0deg)) translateY(var(--ty,0px)) scale(var(--sc,1));transition:color .3s,border-color .3s,box-shadow .35s;will-change:transform}
+.lvl i{display:none}
+.lvl small{color:inherit;opacity:.72}
+.lvl .nz .co{stroke:#1b2260;transition:stroke .3s}.lvl .nz .md{stroke:#5b78ff}.lvl .nz .gl{opacity:.35;transition:opacity .3s}
+.lvl:hover .nz .co{stroke:#fff}.lvl:hover .nz .gl{opacity:1}
+@media(max-width:700px){.lvls{height:auto;display:flex;flex-direction:column;gap:12px;width:100%}.lvl{position:static;width:100%;height:auto;transform:none!important;padding:14px 18px}}
+
+/* ---- liquid glass v3: transparent glass (your specs) + smaller violet glow ---- */
+:root{--g-bg:rgba(255,255,255,.12);--g-bg-h:rgba(255,255,255,.18);--g-bd:rgba(255,255,255,.3);--g-bd-h:rgba(255,255,255,.5);
+--g-sh:0 8px 32px 0 rgba(0,0,0,.15),inset 1px 1px 2px 0 rgba(255,255,255,.4),inset -1px -1px 4px 0 rgba(255,255,255,.1);
+--g-bf:blur(35px) saturate(180%)}
+button,.tabs,.bar.glass,.lvl{background:var(--g-bg);border:1.5px solid var(--g-bd);box-shadow:var(--g-sh);-webkit-backdrop-filter:var(--g-bf);backdrop-filter:var(--g-bf);color:var(--fg);text-shadow:none;transition:background .3s ease,border-color .3s ease,box-shadow .3s ease,color .3s ease,transform .3s ease}
+button:hover,button.sel,button.act{background:var(--g-bg-h);border-color:var(--g-bd-h);color:#fff;text-shadow:0 1px 6px rgba(60,30,160,.6);box-shadow:var(--g-sh),0 0 16px rgba(140,110,255,.3)}
+button:hover{transform:translateY(-2px)}
+button:active{transform:translateY(0) scale(.97)}
+button.on{color:var(--ok);border-color:rgba(127,211,154,.6)}
+button .ic svg{stroke:#eef0ff}
+/* smaller violet glow: 90px -> 60px (-33%), softer white core so the violet shows on small buttons */
+button::before{background:var(--vio)}
+button:hover::before{opacity:.5}
+button.sel::before,button.act::before{opacity:.8}
+button::after{background:radial-gradient(circle var(--gr,60px) at var(--mx) var(--my),rgba(255,255,255,.7) 0,rgba(255,255,255,.28) 14%,rgba(190,130,255,.6) 45%,rgba(150,110,255,0) 100%)}
+/* nested buttons inside glass bars stay flat */
+.tabs button,.bar button,.tabs button:hover,.bar button:hover{background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transform:none}
+.bar button:hover{background:rgba(255,255,255,.1)}
+.tabs button.sel,.bar button.sel{box-shadow:0 4px 14px rgba(90,70,240,.45)}
+/* level cards: shorter, lifted above the stat chips */
+.lvls{height:clamp(240px,35vh,320px);margin:10px 0 36px}
+.lvl{bottom:28px;height:clamp(185px,28vh,255px);border-radius:24px;--gr:140px}
+.lvl:hover,.lvl:active{transform:rotate(var(--a,0deg)) translateY(var(--ty,0px)) scale(var(--sc,1))}
+.lvl .nz .co{stroke:#eaf2ff}
+.lvl:hover .nz .co{stroke:#fff}
+.lvl:hover .nz .gl{opacity:1}
+/* cursor ring = clear see-through glass */
+.cr{background:rgba(255,255,255,.009);border:1px solid rgba(255,255,255,.105);box-shadow:0 2px 8px rgba(0,0,0,.03),inset 1px 1px 1px rgba(255,255,255,.105);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px)}
+.cr.hov{width:44px;height:44px;margin:-22px 0 0 -22px;background:rgba(255,255,255,.015);border-color:rgba(255,255,255,.165)}
+.cr.dn{width:32px;height:32px;margin:-16px 0 0 -16px;background:rgba(255,255,255,.03)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){button,.tabs,.bar.glass,.lvl{background:rgba(28,32,72,.72)}}
+@media(max-width:700px){.lvls{margin:6px 0 0;height:auto}.lvl{bottom:auto;height:auto}}
+/* brand animation: a blob sweeps across, reveals the letters and lands as a violet dot */
+.brand .bt{position:relative;display:inline-flex;align-items:center}
+.brand .bt span{display:inline-block}
+.brand .bt em{position:absolute;left:0;top:50%;height:10px;width:10px;margin-top:-5px;border-radius:99px;background:linear-gradient(135deg,#8ea6ff,#b58bff);box-shadow:0 0 12px rgba(150,120,255,.85);opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
@@ -276,18 +333,19 @@ const LV=[['s1','المستوى 1','2–4 كلمات','<path d="M50 22V78M22 50H
 const dkey=d=>{d=new Date(d);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()};
 function streak(h){const s=new Set(h.map(x=>dkey(x.d)));let n=0;const d=new Date();if(!s.has(dkey(d)))d.setDate(d.getDate()-1);while(s.has(dkey(d))){n++;d.setDate(d.getDate()-1)}return n}
 const dayAr=n=>n===1?'يوم واحد':n===2?'يومان':n<=10?n+' أيام':n+' يومًا';
-function home(){nav('home');const h=LS.get('typing_hist',[]),sk=streak(h),best=h.reduce((m,x)=>Math.max(m,x.wpm||0),0);
+function home(){const wasHome=st.view==='home'&&!brandFirst;nav('home');const h=LS.get('typing_hist',[]),sk=streak(h),best=h.reduce((m,x)=>Math.max(m,x.wpm||0),0);
  const chips=h.length?`<div class="strip">${sk?`<span class="chip">${I('flame')}<span>سلسلة<b>${dayAr(sk)}</b></span></span>`:''}<span class="chip">${I('bolt')}<span>أفضل سرعة<b>${best}</b>WPM</span></span><span class="chip">${I('target')}<span>الجلسات<b>${h.length}</b></span></span></div>`:'';
- M.innerHTML=`<div class="home2"><div class="brand">${neon(STAR)}WriteMax</div><h1>Type Beyond<br><span>The Story</span></h1><p>اختر مستواك وابدأ الكتابة من قصصك</p><div class="lvls">${LV.map(([m,t,d,sh])=>`<button class="lvl" data-m="${m}"><i></i><i></i><i></i><i></i><i></i>${neon(sh)}<b>${t}</b><small>${d.replace('–','\u200E–\u200E')}</small></button>`).join('')}</div>${chips}</div>`;
- document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{$('.home2').classList.add('out');setTimeout(()=>step(b.dataset.m),350)})}
-const STORIES=["The old lighthouse keeper woke before dawn, as he had done for forty years. He climbed the narrow stairs, checked the lamp, and watched the grey sea slowly turn silver. Nobody visited the island anymore, yet he kept the light burning every night, just in case. One stormy evening, a small boat appeared through the fog, and its captain waved a trembling lantern. The keeper smiled, because he finally understood why he had stayed. Some duties matter even when nobody is watching, and a single light can bring a stranger safely home.", "Maya found a tiny key hidden inside a dusty library book. She turned it over in her hands, wondering which door it could possibly open. After searching every corridor, she noticed a small wooden box under the reading desk. Inside was a folded map, drawn carefully in faded blue ink. It led to the garden behind the school, where an ancient oak tree stood quietly. Beneath its roots she discovered a jar full of letters, written by students many years ago. Maya read them all, and then she added a letter of her own.", "A young merchant crossed the desert with three camels and a heavy bag of spices. The days were hot, the nights were cold, and the stars seemed closer than ever. Whenever he felt tired, he remembered the advice of his grandfather: walk slowly, but never stop. After two weeks, he reached a bustling city full of colors, music, and delicious smells. He sold everything before noon, then bought a small notebook to record his journey. That evening, he wrote the first page of a story he would tell for the rest of his life.", "Every morning, the baker opened his shop while the streets were still quiet. The warm smell of fresh bread drifted through the neighborhood and gently woke the sleepy children. He never advertised, because his customers always returned and brought their friends along. One winter, heavy snow blocked the roads, and nobody could reach the shop. So the baker packed his basket, wrapped himself in a thick scarf, and delivered bread door to door. People remembered that kindness for years, and the little shop became the heart of the whole town.", "The astronaut floated beside the window and stared at the blue planet below. Everything she loved was down there, small and fragile and beautiful. Mission control asked for a status report, and she answered calmly that all systems were working perfectly. Yet her heart felt strangely full, as if the silence itself were speaking. She thought about her family, her old school, and the first time she looked up at the night sky. Then she took a deep breath, smiled, and returned to her work, grateful for the journey.", "A curious fox stood at the edge of a wide, shining river. He wanted to reach the golden field on the other side, but the water looked deep and fast. A wise old turtle suggested that he should follow the stones, one careful step at a time. The fox laughed at first, because he preferred to run and jump. Eventually he listened, moved slowly, and crossed without even wetting his tail. From that day on, he understood that patience is often faster than courage alone.", "Every afternoon, an elderly man sat in the park and played chess against himself. A boy watched him for weeks, too shy to say a word. One day the man looked up and asked whether he would like to play. The boy lost the first game in less than ten minutes, but he was not discouraged. He returned the next day, then the next, and slowly his moves became braver and smarter. After a year, he finally won, and the old man shook his hand with proud, gentle eyes.", "It rained all morning, so the whole city moved beneath colorful umbrellas. Emma waited at the station, listening to the soft rhythm of water on the roof. Her train was late, but she did not mind, because she had a new book and a warm cup of tea. Across the platform, a stranger smiled at her and opened the same novel. They laughed quietly, and neither of them said anything for a while. Sometimes a rainy day gives you exactly the small surprise you did not know you needed."];
+ M.innerHTML=`<div class="home2"><div class="brand">${neon(STAR)}<span class=\"bt\">WriteMax</span></div><h1>Type Beyond<br><span>The Story</span></h1><p>اختر مستواك وابدأ الكتابة من قصصك</p><div class="lvls">${LV.map(([m,t,d,sh])=>`<button class="lvl" data-m="${m}"><i></i><i></i><i></i><i></i><i></i>${neon(sh)}<b>${t}</b><small>${d.replace('–','\u200E–\u200E')}</small></button>`).join('')}</div>${chips}</div>`;
+ document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{$('.home2').classList.add('out');setTimeout(()=>step(b.dataset.m),350)});if(!wasHome)brandAnim();brandFirst=false}
+let brandFirst=true;
+function brandAnim(){const bt=document.querySelector('.brand .bt');if(!bt||!bt.animate)return;
+ bt.innerHTML=[...'WriteMax'].map(c=>`<span>${c}</span>`).join('')+'<em></em>';
+ const em=bt.querySelector('em');if(matchMedia('(prefers-reduced-motion:reduce)').matches){em.style.display='none';return}
+ const D=1100,ls=[...bt.querySelectorAll('span')],W=bt.getBoundingClientRect().width,o={duration:D,fill:'both'};
+ ls.forEach((l,i)=>{const t=.15+.4*i/ls.length;l.animate([{opacity:0,filter:'blur(4px)',offset:0},{opacity:0,filter:'blur(4px)',offset:t},{opacity:1,filter:'blur(0px)',offset:t+.08},{opacity:1,filter:'blur(0px)',offset:1}],o)});
+ em.animate([{transform:'translateX(-18px)',width:'10px',opacity:0,offset:0},{transform:'translateX(-8px)',width:'10px',opacity:1,offset:.1},{transform:'translateX(0px)',width:'38px',opacity:1,offset:.2},{transform:`translateX(${W*.72}px)`,width:'38px',opacity:1,offset:.65},{transform:`translateX(${W+15}px)`,width:'10px',opacity:1,offset:.8},{transform:`translateX(${W+15}px)`,width:'10px',opacity:1,offset:1}],{...o,easing:'ease-in-out'})}
+const STORIES=["For forty years, an old lighthouse keeper woke before dawn and climbed the narrow stairs to check the lamp. Nobody visited the island anymore, yet he kept the light burning every single night. One stormy evening, a small boat appeared through the thick fog. Its captain waved a trembling lantern and searched for the shore. The keeper turned the great lamp toward the rocks and guided the boat into the quiet harbor. The captain climbed out, cold and tired, and thanked him with tears in his eyes. That night, the keeper finally understood why he had stayed. Some duties matter even when nobody is watching, and one small light can bring a stranger safely home.", "Maya found a tiny brass key hidden inside a dusty library book. She turned it over in her hands and wondered which door it could possibly open. For days she searched the old building, trying every lock she could find. On the last afternoon, she noticed a small wooden box beneath the reading table. The key fit perfectly, and the lid opened with a soft click. Inside lay a folded map and a note from a girl who had lived there long ago. The note said that every good story begins with a curious reader. Maya smiled, picked up the map, and followed it out into the golden evening.", "The library closed at six, but Omar stayed behind to finish his last chapter. The librarian noticed the small light at the back and decided not to say a word. Outside, the streets grew quiet and the sky turned deep blue. When Omar finally closed the book, he found a warm cup of tea waiting on the desk. He thanked her softly and admitted that he had lost track of time. She smiled and answered that a good reader deserves a good ending. They walked out together, and she locked the door behind them.", "On the first day of spring, Lina planted a single seed in a chipped blue cup. Every morning she gave it a little water and a lot of attention. Weeks passed, and nothing seemed to happen, but she kept waiting. Her brother laughed and said that the cup was full of nothing but dirt. Lina did not argue, because she believed that quiet things take time. Then one calm morning, a tiny green leaf pushed through the soil. She laughed out loud and called everyone to the window. That day she learned something important: growth is slow, yet it never stops.", "The train slid out of the station just as the sun began to rise. Karim pressed his forehead against the cold window and watched the fields pass by. He was leaving his hometown for the first time, with one suitcase and a head full of plans. His mother had packed enough food for three days and hidden a note in his pocket. He waited until the city disappeared behind the hills before he opened it. The note held only four words: write to me often. Karim took out his notebook, smiled through his tears, and began his first letter.", "A little robot named Pip lived in a repair shop full of forgotten machines. At night, when the lights went out, he tested every broken toy and quietly fixed what he could. The shop owner never understood why so many things worked in the morning. He blamed the weather, then the wiring, then his own memory. One day, he left a tiny toolbox on the shelf with a card that read: for Pip, with thanks. The robot could not smile, but his lights glowed a little brighter. From that night on, the two of them worked side by side.", "Sara had always been afraid of deep water, yet she signed up for swimming lessons anyway. In the first week, she only held the edge of the pool and breathed slowly. The coach never rushed her, and he never laughed. By the fourth week, she was floating on her back and staring at the bright ceiling. Then came the day of the long swim across the pool. Her heart raced, but she pushed off the wall and kept going. When she touched the far side, everyone clapped, and she realized that fear had simply been waiting for her to try.", "In a small mountain village, the only bridge was made of rope and old wooden planks. Each spring, the villagers gathered to repair it together, board by board. Children carried tools, elders gave directions, and someone always brought hot soup. The work took a whole day, but nobody complained. One year, a heavy snow cut the road, and a lost traveler arrived at the river at dusk. The bridge held strong under his tired steps, and lanterns glowed on the other side. He understood then that a bridge is more than a path across water. It is a promise that nobody will be left alone."];
 const pickStory=p=>{const a=STORIES.filter(x=>x!==p);return a[Math.random()*a.length|0]};
-STORIES.push("The library closed at six, but Omar stayed behind to finish his last chapter. The librarian noticed the small light at the back, smiled, and decided not to say a word. Outside, the streets turned quiet and the sky grew dark. When Omar finally closed the book, he found a warm cup of tea waiting on the desk. He thanked her softly, and she answered that a good reader deserves a good ending.",
-"On the first day of spring, Lina planted a single seed in a chipped blue cup. Every morning she gave it a little water and a lot of attention. Weeks passed, and nothing seemed to happen, but she kept waiting. Then one quiet morning, a tiny green leaf appeared. She laughed out loud, because she had learned something important: growth is slow, yet it never stops.",
-"The train slid out of the station just as the sun began to rise. Karim pressed his forehead against the cold window and watched the fields pass by. He was leaving his hometown for the first time, with one suitcase and a head full of plans. His mother had packed enough food for three days, and she had tucked a note inside his pocket. It said only four words: write to me often.",
-"A little robot named Pip lived in a repair shop full of forgotten machines. At night, when the lights went out, he tested every broken toy and quietly fixed what he could. The shop owner never understood why so many things worked in the morning. One day, he left a tiny toolbox on the shelf with a card that read: for Pip, with thanks. The robot could not smile, but his lights glowed a little brighter.",
-"Sara had always been afraid of deep water, yet she signed up for swimming lessons anyway. In the first week, she only held the edge of the pool and breathed slowly. The coach never rushed her, and he never laughed. By the fourth week, she was floating on her back, staring at the bright ceiling. When she finally swam across the pool, everyone clapped, and she realized that fear had simply been waiting for her to try.",
-"In a small mountain village, the only bridge was made of rope and old wooden planks. Each spring, the villagers gathered to repair it together, board by board. Children carried tools, elders gave directions, and someone always brought hot soup. The work took a whole day, but nobody complained. They knew that a bridge is more than a path across a river; it is a promise that nobody will be left alone on the other side.");
 function step(m){nav('step');st.auto=pickStory(st.auto);
  M.innerHTML=`<div class="step"><h2 style="margin:0">${LBL[m]}</h2><p class="mut" style="margin:0">أضف القصة كنص أو كملف PDF، أو خلّ النص يُختار تلقائيًا</p>
 <div class="tabs glass" id="tabs"><button id="tt" class="sel">${I('text')}نص</button><button id="ta">${I('spark')}تلقائي</button><button id="tp">${I('file')}PDF</button></div>
@@ -399,7 +457,7 @@ async function importData(f){try{const o=JSON.parse(await f.text());let n=0;cons
  catch{toast('تعذّرت قراءة الملف. اختر ملف نسخة احتياطية من WriteMax بصيغة JSON.')}}
 function savedView(){const keep=st.view==='saved'?(($('.page')||{}).scrollTop||0):0;nav('saved');const all=Object.values(saved),L=all.filter(x=>!x.s),D=all.filter(x=>x.s),T=Object.values(trash);
  M.innerHTML=`<div class="page${keep?' still':''}"><h3>قائمة الحفظ (${L.length}) <button id="t1" ${L.length?'':'disabled'}>${I('target')}اختبرني</button></h3><div id="l1"></div><h3>تمت المراجعة (${D.length}) <button id="t2" ${D.length?'':'disabled'}>${I('target')}اختبرني</button></h3><div id="l2"></div><h3><button id="tb" class="${st.showTrash?'on':''}">${I('trash')}المحذوفات (${T.length})</button></h3><div id="l3"></div>
- <div class="row"><button id="ex">${I('down')}نسخة احتياطية</button><button id="im">${I('up')}استيراد</button></div><input type="file" id="imf" accept="application/json,.json" hidden></div>`;
+ <div class="row"><button id="hm">${I('home')}الرئيسية</button><button id="ex">${I('down')}نسخة احتياطية</button><button id="im">${I('up')}استيراد</button></div><input type="file" id="imf" accept="application/json,.json" hidden></div>`;
  const empty=(id,t)=>{$(id).innerHTML=`<p class="mut" style="text-align:center">${t}</p>`};
  const fill=(id,arr,done)=>arr.forEach(x=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<span class="w" lang="en">${esc(x.w)}</span><span class="m">${esc(x.ar||'')}${x.sent?`<small>${esc(x.sent)}</small>`:''}</span><button class="sp ib" title="استمع" aria-label="استمع">${I('talk')}</button><button class="mv">${done?I('refresh')+'نسيتها':I('star')+'حفظتها'}</button><button class="rm ib" title="حذف" aria-label="حذف">✕</button>`;
   d.querySelector('.sp').onclick=e=>{e.currentTarget.blur();speak(x.w)};
@@ -412,7 +470,7 @@ function savedView(){const keep=st.view==='saved'?(($('.page')||{}).scrollTop||0
   T.forEach(x=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<span class="w" lang="en">${esc(x.w)}</span><span class="m">${esc(x.ar||'')}${x.sent?`<small>${esc(x.sent)}</small>`:''}</span><button class="rs">${I('refresh')}استرجاع</button>`;
    d.querySelector('.rs').onclick=()=>{if(!saved[x.w]){saved[x.w]=x;DB.set(saved)}delete trash[x.w];TR.set(trash);savedView()};$('#l3').appendChild(d)})}
  $('#tb').onclick=()=>{st.showTrash=!st.showTrash;savedView()};
- $('#ex').onclick=exportData;$('#im').onclick=()=>$('#imf').click();$('#imf').onchange=e=>e.target.files[0]&&importData(e.target.files[0]);
+ $('#hm').onclick=home;$('#ex').onclick=exportData;$('#im').onclick=()=>$('#imf').click();$('#imf').onchange=e=>e.target.files[0]&&importData(e.target.files[0]);
  const t=a=>()=>{st.test=1;begin('w',shuffle(a).map(x=>({w:x.w,sent:x.sent,ar:x.ar})))};$('#t1').onclick=t(L);$('#t2').onclick=t(D);
  if(keep)$('.page').scrollTop=keep}
 /* luxury cursor */
@@ -445,7 +503,7 @@ function savedView(){const keep=st.view==='saved'?(($('.page')||{}).scrollTop||0
   ps.max=cur==='v'?100:150;ps.value=vol;ps.style.setProperty('--p',(vol/ps.max*100)+'%');$('#pp').textContent=m?'مكتوم':vol+'%';
   $('#bv .ic').innerHTML=`<svg viewBox="0 0 24 24">${SV[aud.sm?'talkoff':'talk']}</svg>`;$('#bfx .ic').innerHTML=`<svg viewBox="0 0 24 24">${SV[aud.em?'spkoff':'spk']}</svg>`;
   const pv=$('#pvs');pv.style.display=cur==='v'?'flex':'none';
-  pv.innerHTML=[['f','أنثى 1'],['g','أنثى 2'],['m','ذكر 1'],['h','ذكر 2']].map(([g,t])=>{const x=voiceFor(g).v;return`<button data-g="${g}" class="${g===vg?'sel':''}" title="${x?x.name:''}">${t}</button>`}).join('');
+  pv.innerHTML=[['f','venus','أنثى'],['g','venus','أنثى'],['m','mars','ذكر'],['h','mars','ذكر']].map(([g,ic,t])=>{const x=voiceFor(g).v;return`<button data-g="${g}" class="${g===vg?'sel':''}" aria-label="${t}" title="${x?x.name:t}">${I(ic)}</button>`}).join('');
   pv.querySelectorAll('button').forEach(b=>b.onclick=()=>{vg=b.dataset.g;try{localStorage.setItem('typing_voice',vg)}catch{}paint();b.blur();demo()})};
  $('#ps').oninput=e=>{const k=key();aud[k+'v']=+e.target.value;if(aud[k+'v']>0)aud[k+'m']=0;saveAud();paint()};
  $('#ps').onchange=e=>{e.target.blur();cur==='v'?demo():sfx.ok(2)};
@@ -466,7 +524,7 @@ kb.addEventListener('input',()=>{if(st.view!=='play'||st.locked){kbReset();retur
  kb.value=kprev=st.typed.join('')});
 function addTools(){const p=M.querySelector('.pane');if(!p)return;const w=document.createElement('div');w.className='tools';
  const add=(t,ic,fn)=>{const b=document.createElement('button');b.className='ib';b.title=t;b.setAttribute('aria-label',t);b.innerHTML=I(ic);b.onclick=e=>{e.stopPropagation();e.currentTarget.blur();fn();coarse&&st.view==='play'&&kb.focus({preventScroll:true})};w.appendChild(b)};
- add('استمع','talk',()=>{const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):it.s)});add('تخطَّ هذه الجملة','skip',skip);p.appendChild(w)}
+ add('الرئيسية','home',home);add('استمع','talk',()=>{const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):it.s)});add('تخطَّ هذه الجملة','skip',skip);p.appendChild(w)}
 function skip(){if(st.locked||st.view!=='play')return;if(st.it0){st.act+=Date.now()-st.it0;st.it0=0}st.res.push({skip:1});st.idx++;item()}
 function item(){kbReset();item0();if(st.view==='play'&&M.querySelector('.pane')){addTools();coarse&&kb.focus({preventScroll:true})}}
 M.addEventListener('click',()=>{coarse&&st.view==='play'&&kb.focus({preventScroll:true})});
@@ -478,6 +536,17 @@ function unlockAudio(){if(unlocked)return;unlocked=1;
  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume&&ac.resume();const b=ac.createBuffer(1,1,22050),o=ac.createBufferSource();o.buffer=b;o.connect(ac.destination);o.start(0)}catch{}
  try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}catch{}}
 ['pointerdown','touchstart','keydown','click'].forEach(ev=>addEventListener(ev,unlockAudio,{passive:true}));
+
+/* ---- glow that follows the cursor + mouse-driven card fan ---- */
+Object.assign(SV,{venus:'<circle cx="12" cy="9" r="5"/><path d="M12 14v8M8.5 18h7"/>',mars:'<circle cx="10" cy="14" r="5"/><path d="M13.5 10.5 20 4M15 4h5v5"/>'});
+{const act=new Set();let nx=0,sx=0,last=0;
+ addEventListener('pointermove',e=>{nx=(e.clientX/innerWidth-.5)*2;last=performance.now();const b=e.target.closest&&e.target.closest('button');if(!b||b.disabled)return;const r=b.getBoundingClientRect(),m=new DOMMatrix(getComputedStyle(b).transform),dt=(m.a*m.d-m.b*m.c)||1,vx=e.clientX-(r.left+r.width/2),vy=e.clientY-(r.top+r.height/2);b._tx=(m.d*vx-m.c*vy)/dt+b.offsetWidth/2;b._ty=(-m.b*vx+m.a*vy)/dt+b.offsetHeight/2;if(b._cx==null){b._cx=b._tx;b._cy=b._ty}act.add(b)},{passive:true});
+ (function loop(t){for(const b of act){b._cx+=(b._tx-b._cx)*.2;b._cy+=(b._ty-b._cy)*.2;b.style.setProperty('--mx',b._cx+'px');b.style.setProperty('--my',b._cy+'px');if(!b.matches(':hover')){act.delete(b);b._cx=null}}
+  const cs=document.querySelectorAll('.lvl');
+  if(cs.length){const idle=t-last>2500;sx+=((idle?Math.sin(t/1800)*.4:nx)-sx)*.07;
+   cs.forEach((c,i)=>{const h=c.matches(':hover')?1:0;c._l=(c._l||0)+(h-(c._l||0))*.14;const a=(1-i)*19+sx*9;
+    c.style.setProperty('--a',a.toFixed(2)+'deg');c.style.setProperty('--ty',(-26*c._l).toFixed(1)+'px');c.style.setProperty('--sc',(1+.06*c._l).toFixed(3));c.style.zIndex=h?20:10-Math.abs(1-i)})}
+  requestAnimationFrame(loop)})(0)}
 
 home();
 
