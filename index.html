@@ -17,6 +17,7 @@
 html,body{height:var(--vh,100%);width:100%;margin:0;overflow:hidden;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--fg);font-family:var(--fl);display:flex;flex-direction:column}
 body::before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(40% 35% at 20% 25%,rgba(59,108,255,.38),transparent 70%),radial-gradient(38% 35% at 80% 30%,rgba(155,92,255,.34),transparent 70%),radial-gradient(45% 40% at 55% 85%,rgba(40,80,220,.3),transparent 70%);filter:blur(30px);animation:drift 18s ease-in-out infinite alternate}
+body.on-home::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(55% 45% at 50% 108%,rgba(30,85,255,.55),transparent 70%),radial-gradient(40% 30% at 50% 0%,rgba(90,60,255,.16),transparent 70%)}
 @keyframes drift{to{transform:translate(4%,-3%) scale(1.08)}}
 :focus-visible{outline:2px solid #fff;outline-offset:3px}
 h1{font-family:var(--fd)}
@@ -51,7 +52,7 @@ header{height:68px;display:grid;grid-template-columns:1fr auto 1fr;align-items:c
 /* ---- home ---- */
 .nz{overflow:visible}.nz g{fill:none;stroke-linecap:round;stroke-linejoin:round}
 .nz .gl{stroke:#2a64ff;stroke-width:9;opacity:.6;filter:blur(5px)}.nz .md{stroke:#4f86ff;stroke-width:5;fill:rgba(60,110,255,.12)}.nz .co{stroke:#eaf2ff;stroke-width:2}
-.home2{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center;padding:20px;background:radial-gradient(55% 45% at 50% 108%,rgba(30,85,255,.55),transparent 70%),radial-gradient(40% 30% at 50% 0%,rgba(90,60,255,.16),transparent 70%);animation:pin .6s cubic-bezier(.2,.8,.2,1);transition:.35s}
+.home2{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center;padding:20px;animation:pin .6s cubic-bezier(.2,.8,.2,1);transition:.35s}
 .home2.out{opacity:0;transform:scale(1.04)}
 .brand{position:absolute;top:10px;left:32px;display:flex;align-items:center;gap:10px;font:700 1.15rem var(--fd);direction:ltr}.brand .nz{width:36px;height:36px}
 .home2 h1{margin:0;font-size:clamp(2.4rem,5.6vw,4.8rem);line-height:1.1;font-weight:700;letter-spacing:-.02em;direction:ltr}
@@ -163,6 +164,12 @@ canvas.ct{z-index:99995;width:100vw;height:100vh}
 .rp{width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;border:2px solid rgba(160,200,255,.9);z-index:99997;animation:rip .65s ease-out forwards}
 @keyframes rip{from{opacity:1}to{transform:scale(9);opacity:0}}
 
+
+/* ---- home: the two quick buttons appear as a glass notification for 2.2s ---- */
+.bar.note{position:fixed;top:14px;left:50%;translate:-50% 0;z-index:50;gap:10px;padding:8px 10px;animation:pin .5s cubic-bezier(.2,.8,.2,1);transition:opacity .45s,visibility 0s}
+.bar.note.gone{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s,visibility 0s .45s}
+.bar.note button{background:var(--g-bg);border:1.5px solid var(--g-bd);box-shadow:var(--g-sh);-webkit-backdrop-filter:var(--g-bf);backdrop-filter:var(--g-bf)}
+.bar.note button:hover{background:var(--g-bg-h);border-color:var(--g-bd-h);box-shadow:var(--g-sh),0 0 16px rgba(140,110,255,.3);transform:translateY(-2px)}
 @media(max-width:900px){header{padding:0 8px;gap:6px}.bar button,.side button{font-size:.72rem;padding:.45em .6em}}
 @media(max-width:700px){
  header{display:flex;height:auto;min-height:56px;padding:8px 10px;gap:6px;justify-content:space-between}
@@ -251,6 +258,10 @@ button::after{background:radial-gradient(circle var(--gr,60px) at var(--mx) var(
 .brand .bt{position:relative;display:inline-flex;align-items:center}
 .brand .bt span{display:inline-block}
 .brand .bt em{position:absolute;left:0;top:50%;height:10px;width:10px;margin-top:-5px;border-radius:99px;background:linear-gradient(135deg,#8ea6ff,#b58bff);box-shadow:0 0 12px rgba(150,120,255,.85);opacity:0;pointer-events:none}
+
+/* home: no top bar; selected tab clearly highlighted */
+body.on-home header .bar{visibility:hidden;pointer-events:none}
+.tabs button.sel{background:linear-gradient(135deg,#6a5cff,#9b6bff)!important;color:#fff;border:0}
 </style>
 </head>
 <body>
@@ -263,7 +274,7 @@ button::after{background:radial-gradient(circle var(--gr,60px) at var(--mx) var(
 const $=s=>document.querySelector(s), M=$('#main');
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const dict=o=>Object.assign(Object.create(null),o);
-const opt=Object.assign({n:9,hide:0,tr:1},LS.get('typing_opts',{}));
+const opt=Object.assign({n:0,hide:0,tr:1},LS.get('typing_opts',{}));if(opt.v!==2){opt.n=0;opt.v=2}
 const st={autoOn:true,showTrash:false,view:'home',text:'',mode:'',items:[],idx:0,pos:0,keys:0,hit:0,ok:0,t0:0,act:0,it0:0,ik:0,ih:0,res:[],wrong:new Map(),locked:false,test:0,hide:0};
 const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -303,19 +314,258 @@ function voiceFor(g){let vs=[];try{vs=speechSynthesis.getVoices()}catch{}vs=vs.f
  return alt?{v:alt,exact:1}:{v:F[0],exact:0}}
 function applyVoice(u){const {v,exact}=voiceFor(vg);if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';u.volume=aud.sv/100;u.rate=((vg==='g'||vg==='h')&&!exact)?.96:.92;u.pitch=exact?1:(vg==='m'?.82:vg==='h'?.9:vg==='g'?1.2:1.12)}
 /* online helpers (free APIs, cached in the browser) */
-const tc=dict(LS.get('typing_tr',{})),dc=dict(LS.get('typing_def',{}));let _fl;
-const flush=()=>{clearTimeout(_fl);_fl=setTimeout(()=>{for(const o of[tc,dc]){const k=Object.keys(o);if(k.length>500)k.slice(0,k.length-500).forEach(x=>delete o[x])}LS.set('typing_tr',tc);LS.set('typing_def',dc)},900)};
+const tc=dict(LS.get('typing_tr2',{})),dc=dict(LS.get('typing_def',{}));let _fl;
+const flush=()=>{clearTimeout(_fl);_fl=setTimeout(()=>{for(const o of[tc,dc]){const k=Object.keys(o);if(k.length>500)k.slice(0,k.length-500).forEach(x=>delete o[x])}LS.set('typing_tr2',tc);LS.set('typing_def',dc)},900)};
 const dec=s=>{const t=document.createElement('textarea');t.innerHTML=s;return t.value};
 const net=u=>fetch(u,{signal:window.AbortSignal&&AbortSignal.timeout?AbortSignal.timeout(8000):undefined});
-async function tr(t){if(!t)return'';if(tc[t])return tc[t];try{const j=await (await net('https://api.mymemory.translated.net/get?q='+encodeURIComponent(t)+'&langpair=en|ar')).json();const r=dec(j.responseData.translatedText||'');if(!r||/MYMEMORY|QUERY LENGTH|INVALID/i.test(r))return'—';tc[t]=r;flush();return r}catch{return'—'}}
+async function tr(t){if(!t)return'';if(tc[t])return tc[t];
+ try{const j=await (await net('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&dt=t&q='+encodeURIComponent(t))).json();const r=(j[0]||[]).map(x=>x&&x[0]||'').join('').trim();if(r){tc[t]=r;flush();return r}}catch{}
+ try{const j=await (await net('https://api.mymemory.translated.net/get?q='+encodeURIComponent(t)+'&langpair=en|ar')).json();const r=dec(j.responseData.translatedText||'');if(!r||/MYMEMORY|QUERY LENGTH|INVALID/i.test(r))return'—';tc[t]=r;flush();return r}catch{return'—'}}
 async function def(w){if(w in dc)return dc[w];try{const j=await (await net('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(w))).json();const d=j[0].meanings[0].definitions[0].definition;dc[w]=d;flush();return d}catch{return''}}
 /* text prep */
-const sentences=t=>t.replace(/\s+/g,' ').split(/(?<=[.!?…])\s+/).map(s=>s.trim()).filter(Boolean);
-const clean=s=>s.replace(/[’‘']/g,'').replace(/[^A-Za-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-function segs(t,min,max){const out=[];let buf=[];const push=w=>{const n=Math.ceil(w.length/Math.ceil(w.length/max));for(let i=0;i<w.length;i+=n){const p=w.slice(i,i+n);if(p.length>=min)out.push(p.join(' '))}};
- for(const s of sentences(t))for(const c of (max>10?[s]:s.split(/[,;:—]\s*|\s-\s/))){const w=clean(c).split(' ').filter(Boolean);if(!w.length)continue;if(w.length>=min){buf=[];push(w)}else if(max>10){buf=buf.concat(w);if(buf.length>=min){push(buf);buf=[]}}}return out}
+/* ==== story engine: smart splitting, ordered chunking, PDF text, unlimited story generator ==== */
+const SE=(()=>{
+const R=a=>a[Math.random()*a.length|0];
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+/* ---------- text normalisation ---------- */
+function norm(t){
+ t=String(t||'').normalize('NFKC').replace(/[\u00AD\u200B-\u200D\u2060\uFEFF]/g,'').replace(/\r\n?/g,'\n')
+  .replace(/[‘’‚‛′`´]/g,"'").replace(/[“”„‟″«»]/g,'"').replace(/[–—―]+/g,' — ')
+  .replace(/([A-Za-z])-[ \t]*\n[ \t]*([a-z])/g,'$1$2').replace(/[ \t\f\v\u00A0]+/g,' ');
+ const L=t.split('\n').map(s=>s.trim());
+ for(let i=0;i<L.length-1;i++){            /* a short title line at a paragraph start becomes its own paragraph */
+  const s=L[i];if(!s)continue;const pv=i?L[i-1]:'',nx=L[i+1];
+  const atStart=!pv||/\n$/.test(pv)||/[.!?…]["')\]]*$/.test(pv);
+  if(atStart&&s.split(' ').length<=6&&!/[.!?…,;:"'\-]$/.test(s)&&/^["'(]?[A-Z0-9]/.test(nx))L[i]=s+'\n'}
+ return L.join('\n')}
+
+/* ---------- sentence splitting ---------- */
+const ABBR=/^(?:mr|mrs|ms|dr|prof|sr|jr|st|mt|vs|inc|ltd|capt|col|gen|lt|sgt|rev|hon|fig|e\.g|i\.e|(?:[A-Za-z]\.)+[A-Za-z])$/i;
+const SPEECH=/^(?:said|asked|replied|whispered|cried|shouted|answered|added|called|laughed|exclaimed|murmured|yelled|thought|continued|told|sighed|smiled)$/i;
+function isEnd(tk,n1,n2){
+ const m=tk.match(/^(.*?)([.!?…]+)(["')\]]*)$/);if(!m)return false;
+ const body=m[1].replace(/^["'(\[]+/,''),end=m[2],q=m[3];
+ if(end==='.'&&(ABBR.test(body)||/^[A-HJ-Z]$/.test(body)))return false;
+ if(/^["'(\[]*[a-z]/.test(n1))return false;
+ if(q&&/[!?]/.test(end)&&n2&&/^(?:[A-Z][a-z]+|he|she|they|I|we|it)$/.test(n1.replace(/[^A-Za-z]/g,''))&&SPEECH.test(n2.replace(/[^A-Za-z]/g,'')))return false;
+ return true}
+function sentences(t){
+ const out=[];
+ for(const para of norm(t).split(/\n\s*\n+/)){
+  const tk=para.replace(/\s+/g,' ').trim().split(' ').filter(Boolean);let cur=[];
+  tk.forEach((x,i)=>{cur.push(x);if(i===tk.length-1||isEnd(x,tk[i+1],tk[i+2])){out.push(cur.join(' '));cur=[]}})}
+ return out}
+
+/* ---------- words (what the person actually types) ---------- */
+function words(raw){
+ let r=raw.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ r=r.replace(/&/g,' and ').replace(/%/g,' percent ').replace(/(\d),(?=\d{3}\b)/g,'$1').replace(/(\d)\.(?=\d)/g,'$1 point ');
+ r=r.replace(/([A-Za-z])'(?=[A-Za-z])/g,'$1\u0001').replace(/'/g,' ').replace(/\u0001/g,"'");
+ return r.replace(/[^A-Za-z0-9' ]/g,' ').split(' ').filter(Boolean)}
+function toks(s){
+ const out=[];
+ for(const raw of s.split(' ').filter(Boolean)){
+  const br=/[,;:]["')\]]*$/.test(raw)||raw==='—';
+  const w=raw==='—'?[]:words(raw);
+  if(!w.length){if(br&&out.length)out[out.length-1].br=1;continue}
+  w.forEach((x,i)=>out.push({t:x,br:br&&i===w.length-1?1:0}))}
+ if(out.length)out[out.length-1].se=1;
+ return out}
+
+/* ---------- ordered chunking: every word of the story lands in exactly one piece ---------- */
+const EB=new Set('a an the of to in on at by for from with and or but his her their its my your our this that into onto as if than'.split(' '));
+const BB=new Set('and but so because when while where who which until although after before then if as with to in on at from into'.split(' '));
+const cost=(w,c)=>{const a=w[c-1],b=w[c];let k=0;if(a.se)k-=4;else if(a.br)k-=3;else if(BB.has(b.t.toLowerCase()))k-=1.2;if(EB.has(a.t.toLowerCase()))k+=3;return k};
+function split(u,min,max){
+ const L=u.length;let k=Math.ceil(L/max);while(k>1&&Math.floor(L/k)<min)k--;
+ const out=[];let p=0;
+ for(let j=0;j<k;j++){
+  const rem=L-p,r=k-j;
+  if(r===1){out.push(u.slice(p));break}
+  const tg=rem/r,lo=Math.max(min,rem-(r-1)*max),hi=Math.min(max,rem-(r-1)*min);
+  let best=Math.max(1,Math.min(rem-1,Math.round(tg)));
+  if(lo<=hi){best=lo;let bc=1e9;for(let s=lo;s<=hi;s++){const c=Math.abs(s-tg)*.9+cost(u,p+s);if(c<bc){bc=c;best=s}}}
+  out.push(u.slice(p,p+best));p+=best}
+ return out}
+function segs(text,min,max){
+ const S=sentences(text).map(toks).filter(a=>a.length),out=[],soft=Math.max(2,Math.floor(min*.7));
+ for(let i=0;i<S.length;i++){
+  let u=S[i].slice();
+  while(u.length<min&&i+1<S.length&&u.length+S[i+1].length<=max){i++;u=u.concat(S[i])}
+  if(u.length<min&&u.length>=soft){out.push(u);continue}
+  if(u.length<min){
+   if(i+1<S.length){i++;u=u.concat(S[i])}
+   else if(out.length){u=out.pop().concat(u)}
+   else{out.push(u);continue}}
+  out.push(...split(u,min,max))}
+ return out.map(a=>a.map(x=>x.t).join(' '))}
+
+/* ---------- PDF: rebuild readable text from pdf.js items ---------- */
+function pdfText(pages){
+ const P=pages.map(items=>{
+  const lines=[];let ln=null;
+  for(const x of items){
+   if(typeof x.str!=='string')continue;
+   const tx=x.transform[4],ty=x.transform[5],h=Math.abs(x.height)||Math.hypot(x.transform[2],x.transform[3])||10,w=x.width||0;
+   if(ln&&Math.abs(ty-ln.y)<=h*.5){
+    if(x.str&&!/\s$/.test(ln.s)&&!/^\s/.test(x.str)&&tx-ln.e>h*.15)ln.s+=' ';
+    ln.s+=x.str;ln.e=Math.max(ln.e,tx+w);ln.h=Math.max(ln.h,h)}
+   else if(x.str.trim()){if(ln)lines.push(ln);ln={s:x.str,y:ty,x:tx,e:tx+w,h}}}
+  if(ln)lines.push(ln);
+  lines.forEach(l=>l.s=l.s.replace(/\s+/g,' ').trim());
+  const L=lines.filter(l=>l.s);
+  const dy=[];for(let i=1;i<L.length;i++){const d=L[i-1].y-L[i].y;if(d>0)dy.push(d)}
+  dy.sort((a,b)=>a-b);const med=dy.length?dy[dy.length>>1]:0;
+  const xs=L.filter(l=>l.s.length>25).map(l=>l.x),minX=xs.length?Math.min(...xs):0;
+  L.forEach((l,i)=>{if(!i)return;const pv=L[i-1],d=pv.y-l.y;
+   l.pb=((med&&d>med*1.35&&d>l.h*1.6)||(l.x-minX>l.h*1.2&&/[.!?…]["')\]]*$/.test(pv.s)))?1:0});
+  return L});
+ const N=P.length,key=s=>s.replace(/\d+/g,'#').toLowerCase(),freq=new Map(),thr=Math.max(3,Math.ceil(N*.4));
+ const pos=L=>[...new Set([0,1,L.length-2,L.length-1])].filter(i=>i>=0&&i<L.length);
+ P.forEach(L=>{new Set(pos(L).filter(i=>L[i].s.length<70).map(i=>key(L[i].s))).forEach(k=>freq.set(k,(freq.get(k)||0)+1))});
+ const pn=/^(?:page\s+)?\d{1,4}(?:\s*(?:of|\/)\s*\d{1,4})?$|^[-–—]\s*\d{1,4}\s*[-–—]$/i;
+ let out='';
+ P.forEach(L=>{const drop=new Set(pos(L).filter(i=>pn.test(L[i].s)||(N>=3&&L[i].s.length<70&&freq.get(key(L[i].s))>=thr)));
+  L.forEach((l,i)=>{if(drop.has(i))return;out+=(out?(l.pb?'\n\n':'\n'):'')+l.s})});
+ return out}
+
+/* ---------- unlimited story generator ---------- */
+const NM={f:['Maya','Lina','Sara','Nora','Hana','Layla','Amira','Zara','Mia','Ella','Rania','Salma','Dina','Lara'],m:['Omar','Karim','Adam','Yusuf','Sami','Leo','Noah','Tariq','Ben','Ali','Hamza','Jad','Fadi','Rami']};
+const PR={f:{s:'she',S:'She',o:'her',p:'her',r:'herself',c:'girl'},m:{s:'he',S:'He',o:'him',p:'his',r:'himself',c:'boy'}};
+function who(ex){const g=Math.random()<.5?'f':'m';let n;do{n=R(NM[g])}while(n===ex);return{n,...PR[g]}}
+const fill=(t,m)=>t.replace(/\{(\w+)\}/g,(_,k)=>m[k]!==undefined?m[k]:'{'+k+'}');
+const cx=h=>({n:h.n,s:h.s,S:h.S,o:h.o,p:h.p,r:h.r});
+const HELP=[['a friendly neighbor','f'],['an old gardener','m'],['a patient grandmother','f'],['a cheerful uncle','m'],['a wise shopkeeper','m'],['a smiling baker','f'],['a retired teacher','f'],['an old fisherman','m']];
+const helper=()=>{const [c,g]=R(HELP),P=PR[g];return{c,C:cap(c),cs:P.s,cS:P.S,co:P.o,cp:P.p}};
+const TIME=['one quiet morning','late one afternoon','one cold winter evening','just before sunset','one rainy Saturday','during the summer holiday','one windy night','early one spring morning'];
+const MK=["Doing the right thing costs very little, but it can mean so much to someone else.","A small act of honesty can brighten a stranger's whole day.","Kindness is the one gift that never gets smaller when you give it away."];
+const MT=["Everyone starts badly, but anyone who keeps trying will get better.","Practice turns a clumsy beginning into a proud ending.","Every expert was once a beginner who refused to quit."];
+const MJ=["Hard roads are easier to walk when you refuse to turn back.","A person who keeps going will always arrive somewhere good.","Courage is simply taking the next step, again and again."];
+const MC=["Sometimes the smallest sounds lead to the biggest adventures.","Curiosity and kindness make a wonderful pair.","A brave heart and an open mind can turn a mystery into a gift."];
+const MF=["A sincere apology is the strongest glue between friends.","Good friends are not the ones who never fall out, but the ones who always return.","Saying sorry is hard for a minute, but being lonely is hard for much longer."];
+const MG=["Good things grow slowly, and patience is the water they need.","Waiting is not wasting time when something wonderful is growing.","The best surprises come to those who keep caring and keep waiting."];
+const MN=["One small kindness can turn a strange place into a home.","A single smile can be the first step of a friendship.","Nobody is a stranger for long when someone is willing to say hello."];
+
+function lost(h){
+ const it=R([['a red scarf','scarf'],['a silver watch','watch'],['a small leather wallet','wallet'],['a blue notebook','notebook'],['a wooden flute','flute'],['a yellow umbrella','umbrella'],['a green backpack','backpack'],['a shiny silver key','key']]);
+ const ow=R([['an old man','m'],['a young mother','f'],['a little boy','m'],['a tired nurse','f'],['a kind teacher','f'],['a worried student','m']]),O=PR[ow[1]];
+ const m={...cx(h),T:cap(R(TIME)),it:it[0],i:it[1],sp:R(['on a bench in the park','near the bus stop','beside the school gate','under a tall tree','on the steps of the library','next to the old fountain']),ow:ow[0],os:O.s,oS:O.S};
+ return ['{T}, {n} was walking home when {s} noticed {it} lying {sp}.',
+  R(['{S} looked around, but nobody was nearby.','{S} waited for a few minutes, but nobody came to pick it up.']),
+  R(['{S} could have kept it, yet {s} knew that someone was probably looking for it.','{n} thought about how upset {s} would feel if {s} had lost it.']),
+  R(['So {s} picked it up carefully and went from shop to shop, asking if anyone knew who it belonged to.','So {s} took it along and asked every person {s} met on the way whether it was theirs.']),
+  'After an hour, {ow} came hurrying down the street with worried eyes.',
+  '{n} held up the {i} and asked, "Is this yours?"',
+  '{oS} stared at it for a moment, and then {os} smiled with relief.',
+  R(['"I have been looking everywhere for it," {os} said.','"I thought I would never see it again," {os} said.'])+' "You are very kind."',
+  '{n} walked home with a warm feeling in {p} heart.',R(MK)].map(t=>fill(t,m))}
+
+function skill(h){
+ const base={...cx(h),T:cap(R(TIME)),...helper()};
+ const k=R([
+  {d:'ride a bike',first:'the bike wobbled and {n} landed on the soft grass',pl:'in the empty yard behind the house',win:'rode all the way to the end of the street without stopping'},
+  {d:'bake bread',first:'the loaf came out flat and as hard as a stone',pl:'in the kitchen after school',win:'pulled a golden, fluffy loaf out of the oven'},
+  {d:'play the guitar',first:'every note sounded wrong and the strings buzzed',pl:'on the back porch',win:'played a whole song from the first note to the last'},
+  {d:'swim across the pool',first:'the water felt deep and cold, and {s} climbed out after only two strokes',pl:'at the shallow end of the pool',win:'swam from one side of the pool to the other'},
+  {d:'draw a horse',first:'the horse looked more like a potato with four legs',pl:'at the kitchen table with a pencil and a pile of paper',win:'drew a horse that everyone could recognize'}]);
+ const m={...base,d:k.d,first:fill(k.first,base),pl:k.pl,win:k.win};
+ return ['{T}, {n} decided to learn how to {d}.',
+  R(['It looked so easy when other people did it.','Everyone else made it look so easy.']),
+  'But on the first try, {first}.',
+  R(['{n} felt embarrassed and wanted to give up.','{S} sat down and wondered whether {s} was simply not good at it.']),
+  'Just then, {c} came by and stopped to watch.',
+  '"Everybody starts badly," {cs} said with a kind smile. "The only secret is to try again tomorrow."',
+  'So {n} practiced {pl} every day, a little longer each time.',
+  R(['Slowly, things began to change.','Little by little, the mistakes became smaller.']),
+  'After two weeks, {s} {win}.',
+  R(['{C} clapped loudly and shouted, "I knew you could do it!"','{C} smiled and said, "Now you know the secret!"']),R(MT)].map(t=>fill(t,m))}
+
+function journey(h){
+ const base={...cx(h),T:cap(R(TIME))};
+ const j=R([
+  {w:'a basket of fresh bread',to:'the farmhouse at the top of the hill',obs:'it began to rain, and the path turned into thick mud',sol:'covered the basket with {p} coat and walked slowly, one careful step at a time',rw:'The family invited {o} inside for a bowl of hot soup.'},
+  {w:'an urgent letter',to:"the doctor's house in the village across the river",obs:'the river rose higher than usual and covered the old wooden bridge',sol:'walked along the bank until {s} found a place where big flat stones crossed the water',rw:'The doctor offered {o} a seat by the warm fire.'},
+  {w:'a small box of medicine',to:'the house of a sick boy at the end of the valley',obs:'a thick fog settled over the road',sol:'followed the sound of the church bell until the lights of the houses appeared',rw:"The boy's mother thanked {o} again and again."},
+  {w:'a jar of golden honey',to:'the market in the next town',obs:'a flock of sheep blocked the narrow road',sol:'waited patiently until the shepherd called his sheep into a field',rw:'A woman at the market bought the whole jar and gave {o} a sweet roll for the walk home.'},
+  {w:'a heavy bag of books',to:'the little school in the mountains',obs:'a strong wind pushed against {o} with every step',sol:'held the bag close and rested behind the big rocks whenever the wind grew too strong',rw:'The children sang a song to welcome {o}.'}]);
+ const m={...base,w:j.w,to:j.to,obs:fill(j.obs,base),sol:fill(j.sol,base),rw:fill(j.rw,base)};
+ return ['{T}, {n} had to carry {w} to {to}.',
+  R(['{S} promised to be careful and set off at once.','{S} packed a few things, promised to be careful, and set off at once.']),
+  R(['For a while, everything went well, and {s} even hummed a little tune.','At first the walk was easy, and {s} enjoyed the fresh air.']),
+  'But halfway there, {obs}.',
+  R(['{n} stopped and thought hard about what to do.','{S} felt worried for a moment, but {s} did not turn back.']),
+  'At last, {s} {sol}.',
+  R(['It took much longer than planned, but {s} never gave up.','It was slow and tiring, but {s} kept going.']),
+  'Finally, {n} reached {to}, tired but very proud.','{rw}',R(MJ)].map(t=>fill(t,m))}
+
+function mystery(h){
+ const q=R([
+  {no:'a soft scratching sound behind the garden shed',db:'At first, {s} thought it was only the wind.',fi:'a small hedgehog tangled in a piece of old string',ac:'carefully cut the string with a pair of scissors',en:'The hedgehog shook itself and hurried away into the bushes.',help:1},
+  {no:'a quiet crying sound coming from the woods',db:'At first, {s} thought it was only the wind.',fi:'a puppy with a blue collar, cold and frightened',ac:'wrapped it in a warm jacket and carried it home',en:'The next day, a family knocked on the door and thanked {o} with happy tears.',help:1},
+  {no:'a strange tapping sound at the window',db:'At first, {s} thought it was only a branch in the wind.',fi:'a tiny bird with an injured wing sitting on the window sill',ac:'made a soft bed in a shoebox and gave it some water',en:'A week later, the bird stretched its wings and flew away, singing as it went.',help:1},
+  {no:'something shiny glittering in the sand near the water',db:'At first, {s} thought it was only a piece of broken glass.',fi:'an old glass bottle with a rolled-up note inside',ac:'pulled out the cork and unrolled the note',en:'It was a friendly message from a child on the other side of the sea, so {s} wrote back at once.',help:0},
+  {no:'a loud rustling in the reeds beside the pond',db:'At first, {s} thought it was only the wind.',fi:'a mother duck and five tiny ducklings that had lost their way',ac:'led them slowly across the grass to the water',en:'The ducklings splashed happily into the pond, and the mother duck quacked her thanks.',help:1}]);
+ const base={...cx(h),T:cap(R(TIME))};
+ const m={...base,no:q.no,fi:q.fi,ac:q.ac,en:fill(q.en,base)};
+ return ['{T}, {n} noticed {no}.',fill(q.db,base),
+  '{n} could not stop wondering, so {s} took a deep breath and went to find out what it was.',
+  'Slowly, {s} moved closer, trying not to make a sound.','There, {s} found {fi}.',
+  q.help?R(['{n} felt a little scared, but also very curious.','{S} stayed calm and thought about the best way to help.']):'{n} felt a little nervous, but also very curious.',
+  'Without waiting, {s} {ac}.','{en}',
+  '{n} smiled, because a strange little discovery had turned into something wonderful.',R(MC)].map(t=>fill(t,m))}
+
+function friends(h){
+ const f=who(h.n),pj=R([{pr:'a tall tower of wooden blocks',nn:'tower',cr:'knocked the tower over with a careless elbow'},{pr:'a big painting for the classroom wall',nn:'painting',cr:'spilled a cup of water across the painting'},{pr:'a paper kite with a long colorful tail',nn:'kite',cr:'tore the kite while carrying it outside'}]);
+ const m={...cx(h),f:f.n,fS:f.S,fp:f.p,...pj,T:cap(R(['one rainy Saturday','one sunny afternoon','after school one day']))};
+ return ['{n} and {f} had been best friends since they were very small.','{T}, they started working together on {pr}.',
+  'They worked for hours and could hardly wait to show it to everyone.','Then, by accident, {f} {cr}.',
+  '{n} was so upset that {s} shouted, "How could you be so careless?"',
+  '{f} did not answer. {fS} just picked up {fp} bag and walked away with sad eyes.',
+  "That night, {n} could not sleep, because {s} kept remembering the look on {f}'s face.",
+  '{S} understood that the {nn} could be made again, but a good friend is much harder to replace.',
+  "The next morning, {n} said, \"I am sorry for what I said.\"",
+  "{f} smiled and answered, \"I am sorry too. Let's start again.\"",
+  'Before long, they were laughing and making a new {nn}, even better than the first one.',R(MF)].map(t=>fill(t,m))}
+
+function grow(h){
+ const g=R([{pl:'a sunflower seed',wh:'in an old tin can on the balcony',af:'a thin green stem pushing up through the soil',en:'a huge yellow flower that turned to follow the sun'},
+  {pl:'a tiny apple seed',wh:'in a clay pot beside the kitchen window',af:'two small leaves opening in the soil',en:'a little tree with shiny green leaves'},
+  {pl:'a handful of bean seeds',wh:'in a wooden box on the roof',af:'a tiny green curl rising out of the dirt',en:'a leafy plant full of green beans, enough for the whole family'}]);
+ const m={...cx(h),...helper(),T:cap(R(TIME)),...g};
+ return ['{T}, {n} planted {pl} {wh}.','Every morning, {s} watered the soil and looked closely for any sign of green.',
+  'But nothing happened for many days.','{C} joked that {n} was growing nothing but dirt.',
+  '{n} only smiled, because {s} believed that good things take time.','Days turned into weeks, and {s} kept waiting patiently.',
+  'Then one calm morning, {s} noticed {af}.',R(['{n} could hardly believe {p} eyes.','{n} gasped and ran to tell everyone.']),
+  'Month after month, it grew taller and stronger, until it became {en}.',
+  'Proudly, {n} showed it to {c}, who could only smile and say, "You were right to wait."',R(MG)].map(t=>fill(t,m))}
+
+function newkid(h){
+ const f=who(h.n),m={...cx(h),f:f.n,fc:f.c};
+ return ['On Monday morning, {n} walked into a new school where {s} did not know a single person.',
+  'The hallways were loud, the faces were strange, and {s} felt very small.',
+  'At lunch, {n} sat alone at the end of a long table and stared at {p} food.',
+  'Then {f}, a {fc} from the same class, came over holding a tray.','{f} smiled and asked, "Is this seat taken?"',
+  '{n} shook {p} head, too surprised to speak.','Soon they were talking about their favorite games, and {n} forgot to feel nervous.',
+  'By evening, {s} had made a friend, and the school felt smaller.',
+  'The next time {n} saw a new face standing alone, {s} knew exactly what to do.',R(MN)].map(t=>fill(t,m))}
+
+const PLOTS=[lost,skill,journey,mystery,friends,grow,newkid];
+/* each plot lists coherent sentence sets, fullest first; the app picks the first set that fits in 50 words */
+const KEEP=new Map([
+ [lost,[[0,4,5,6,9],[0,4,5,6],[0,4,5,9],[0,4,5,8],[0,4,5]]],
+ [skill,[[0,2,3,8,10],[0,2,3,8],[0,2,8,10],[0,2,8],[0,8]]],
+ [journey,[[0,3,5,7,9],[0,3,5,7],[0,3,5,9],[0,3,5],[0,5,7]]],
+ [mystery,[[0,4,6,7,9],[0,4,6,7],[0,4,6,9],[0,4,6],[0,4]]],
+ [friends,[[0,3,8,9,11],[0,3,8,9],[0,3,9],[0,3]]],
+ [grow,[[0,2,6,8,10],[0,2,6,8],[0,2,6,10],[0,6,8],[0,6]]],
+ [newkid,[[0,3,4,7,9],[0,3,4,7],[0,3,4,9],[0,3,4],[0,3]]]]);
+const gen=()=>{const f=R(PLOTS),a=f(who());return KEEP.get(f).map(k=>k.map(i=>a[i]).filter(Boolean))};
+return{segs,sentences,pdfText,gen,norm}})();
+const segs=SE.segs;
+/* ==== end story engine ==== */
 /* views */
-function nav(v){st.view=v;st.ro&&st.ro.disconnect();try{kb.blur()}catch{}$('#bh').style.display=v==='home'?'none':'';try{speechSynthesis.cancel()}catch{}$('#prog').textContent='';document.querySelectorAll('header .act').forEach(b=>b.classList.remove('act'));const a={home:'#bh',saved:'#bs'}[v];a&&$(a).classList.add('act')}
+function nav(v){st.view=v;document.body.classList.toggle('on-home',v==='home');st.ro&&st.ro.disconnect();try{kb.blur()}catch{}$('#bh').style.display=v==='home'?'none':'';try{speechSynthesis.cancel()}catch{}$('#prog').textContent='';document.querySelectorAll('header .act').forEach(b=>b.classList.remove('act'));const a={home:'#bh',saved:'#bs'}[v];a&&$(a).classList.add('act')}
 const SP='M50 8C54 34 66 46 92 50 66 54 54 66 50 92 46 66 34 54 8 50 34 46 46 34 50 8Z',STAR=`<path d="${SP}"/>`;
 const neon=sh=>`<svg class="nz" viewBox="0 0 100 100"><g class="gl">${sh}</g><g class="md">${sh}</g><g class="co">${sh}</g></svg>`;
 const LOGO='data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="#050a24"/><g fill="none" stroke-linejoin="round"><path d="${SP}" stroke="#2a64ff" stroke-width="9" opacity=".6"/><path d="${SP}" stroke="#eaf2ff" stroke-width="3"/></g></svg>`);
@@ -329,14 +579,15 @@ function toast(t){let d=$('#toast');if(!d){d=document.createElement('div');d.id=
 $('#bh').onclick=home;$('#bs').onclick=savedView;$('#n1').onclick=()=>testList(0);$('#n3').onclick=()=>testList(1);
 function testList(s){const a=Object.values(saved).filter(x=>!!x.s===!!s);if(!a.length){toast(s?'ما في كلمات في قائمة المراجعة بعد. اضغط «حفظتها» بجانب أي كلمة محفوظة لتنتقل إلى هنا.':'ما في كلمات محفوظة للتدرّب عليها بعد. احفظ الكلمات التي أخطأت فيها من صفحة النتائج.');return}st.test=1;begin('w',shuffle(a).map(x=>({w:x.w,sent:x.sent,ar:x.ar})))}
 const LBL={w:'تدريب الكلمات',s1:'المستوى 1 · جمل من 2 إلى 4 كلمات',s2:'المستوى 2 · جمل من 5 إلى 10 كلمات',s3:'المستوى 3 · جمل من 11 إلى 20 كلمة'};
-const LV=[['s1','المستوى 1','2–4 كلمات','<path d="M50 22V78M22 50H78"/>'],['s2','المستوى 2','5–10 كلمات','<path d="M34 24H24V34M66 24H76V34M34 76H24V66M66 76H76V66"/><circle cx="50" cy="50" r="5"/>'],['s3','المستوى 3','11–20 كلمة','<path d="M26 22 78 46 54 54 46 78Z"/>']];
+const LV=[['train','تدرّب على المحفوظ','<path d="M34 24H24V34M66 24H76V34M34 76H24V66M66 76H76V66"/><circle cx="50" cy="50" r="5"/>'],['new','ابدأ تدريب جديد','<path d="M50 22V78M22 50H78"/>'],['review','راجع المحفوظ','<path d="M74 40A26 26 0 1 0 76 56M74 20V40H54"/>']];
 const dkey=d=>{d=new Date(d);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()};
 function streak(h){const s=new Set(h.map(x=>dkey(x.d)));let n=0;const d=new Date();if(!s.has(dkey(d)))d.setDate(d.getDate()-1);while(s.has(dkey(d))){n++;d.setDate(d.getDate()-1)}return n}
 const dayAr=n=>n===1?'يوم واحد':n===2?'يومان':n<=10?n+' أيام':n+' يومًا';
 function home(){const wasHome=st.view==='home'&&!brandFirst;nav('home');const h=LS.get('typing_hist',[]),sk=streak(h),best=h.reduce((m,x)=>Math.max(m,x.wpm||0),0);
+ const sv=Object.values(saved),sub={train:sv.filter(x=>!x.s).length+' كلمة',new:'قصة بالإنجليزية',review:sv.filter(x=>x.s).length+' كلمة'};
  const chips=h.length?`<div class="strip">${sk?`<span class="chip">${I('flame')}<span>سلسلة<b>${dayAr(sk)}</b></span></span>`:''}<span class="chip">${I('bolt')}<span>أفضل سرعة<b>${best}</b>WPM</span></span><span class="chip">${I('target')}<span>الجلسات<b>${h.length}</b></span></span></div>`:'';
- M.innerHTML=`<div class="home2"><div class="brand">${neon(STAR)}<span class=\"bt\">WriteMax</span></div><h1>Type Beyond<br><span>The Story</span></h1><p>اختر مستواك وابدأ الكتابة من قصصك</p><div class="lvls">${LV.map(([m,t,d,sh])=>`<button class="lvl" data-m="${m}"><i></i><i></i><i></i><i></i><i></i>${neon(sh)}<b>${t}</b><small>${d.replace('–','\u200E–\u200E')}</small></button>`).join('')}</div>${chips}</div>`;
- document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{$('.home2').classList.add('out');setTimeout(()=>step(b.dataset.m),350)});if(!wasHome)brandAnim();brandFirst=false}
+ M.innerHTML=`<div class="home2"><div class="brand">${neon(STAR)}<span class=\"bt\">WriteMax</span></div><h1>Type Beyond<br><span>The Story</span></h1><p>اختر ما تريد وابدأ الكتابة من قصصك</p><div class="lvls">${LV.map(([m,t,sh])=>`<button class="lvl" data-m="${m}"><i></i><i></i><i></i><i></i><i></i>${neon(sh)}<b>${t}</b><small>${sub[m]}</small></button>`).join('')}</div>${chips}</div>`;
+ document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{const a=b.dataset.m;if(a==='train')return testList(0);if(a==='review')return testList(1);$('.home2').classList.add('out');setTimeout(()=>step('s1'),350)});if(!wasHome)brandAnim();brandFirst=false}
 let brandFirst=true;
 function brandAnim(){const bt=document.querySelector('.brand .bt');if(!bt||!bt.animate)return;
  bt.innerHTML=[...'WriteMax'].map(c=>`<span>${c}</span>`).join('')+'<em></em>';
@@ -344,44 +595,65 @@ function brandAnim(){const bt=document.querySelector('.brand .bt');if(!bt||!bt.a
  const D=1100,ls=[...bt.querySelectorAll('span')],W=bt.getBoundingClientRect().width,o={duration:D,fill:'both'};
  ls.forEach((l,i)=>{const t=.15+.4*i/ls.length;l.animate([{opacity:0,filter:'blur(4px)',offset:0},{opacity:0,filter:'blur(4px)',offset:t},{opacity:1,filter:'blur(0px)',offset:t+.08},{opacity:1,filter:'blur(0px)',offset:1}],o)});
  em.animate([{transform:'translateX(-18px)',width:'10px',opacity:0,offset:0},{transform:'translateX(-8px)',width:'10px',opacity:1,offset:.1},{transform:'translateX(0px)',width:'38px',opacity:1,offset:.2},{transform:`translateX(${W*.72}px)`,width:'38px',opacity:1,offset:.65},{transform:`translateX(${W+15}px)`,width:'10px',opacity:1,offset:.8},{transform:`translateX(${W+15}px)`,width:'10px',opacity:1,offset:1}],{...o,easing:'ease-in-out'})}
-const STORIES=["For forty years, an old lighthouse keeper woke before dawn and climbed the narrow stairs to check the lamp. Nobody visited the island anymore, yet he kept the light burning every single night. One stormy evening, a small boat appeared through the thick fog. Its captain waved a trembling lantern and searched for the shore. The keeper turned the great lamp toward the rocks and guided the boat into the quiet harbor. The captain climbed out, cold and tired, and thanked him with tears in his eyes. That night, the keeper finally understood why he had stayed. Some duties matter even when nobody is watching, and one small light can bring a stranger safely home.", "Maya found a tiny brass key hidden inside a dusty library book. She turned it over in her hands and wondered which door it could possibly open. For days she searched the old building, trying every lock she could find. On the last afternoon, she noticed a small wooden box beneath the reading table. The key fit perfectly, and the lid opened with a soft click. Inside lay a folded map and a note from a girl who had lived there long ago. The note said that every good story begins with a curious reader. Maya smiled, picked up the map, and followed it out into the golden evening.", "The library closed at six, but Omar stayed behind to finish his last chapter. The librarian noticed the small light at the back and decided not to say a word. Outside, the streets grew quiet and the sky turned deep blue. When Omar finally closed the book, he found a warm cup of tea waiting on the desk. He thanked her softly and admitted that he had lost track of time. She smiled and answered that a good reader deserves a good ending. They walked out together, and she locked the door behind them.", "On the first day of spring, Lina planted a single seed in a chipped blue cup. Every morning she gave it a little water and a lot of attention. Weeks passed, and nothing seemed to happen, but she kept waiting. Her brother laughed and said that the cup was full of nothing but dirt. Lina did not argue, because she believed that quiet things take time. Then one calm morning, a tiny green leaf pushed through the soil. She laughed out loud and called everyone to the window. That day she learned something important: growth is slow, yet it never stops.", "The train slid out of the station just as the sun began to rise. Karim pressed his forehead against the cold window and watched the fields pass by. He was leaving his hometown for the first time, with one suitcase and a head full of plans. His mother had packed enough food for three days and hidden a note in his pocket. He waited until the city disappeared behind the hills before he opened it. The note held only four words: write to me often. Karim took out his notebook, smiled through his tears, and began his first letter.", "A little robot named Pip lived in a repair shop full of forgotten machines. At night, when the lights went out, he tested every broken toy and quietly fixed what he could. The shop owner never understood why so many things worked in the morning. He blamed the weather, then the wiring, then his own memory. One day, he left a tiny toolbox on the shelf with a card that read: for Pip, with thanks. The robot could not smile, but his lights glowed a little brighter. From that night on, the two of them worked side by side.", "Sara had always been afraid of deep water, yet she signed up for swimming lessons anyway. In the first week, she only held the edge of the pool and breathed slowly. The coach never rushed her, and he never laughed. By the fourth week, she was floating on her back and staring at the bright ceiling. Then came the day of the long swim across the pool. Her heart raced, but she pushed off the wall and kept going. When she touched the far side, everyone clapped, and she realized that fear had simply been waiting for her to try.", "In a small mountain village, the only bridge was made of rope and old wooden planks. Each spring, the villagers gathered to repair it together, board by board. Children carried tools, elders gave directions, and someone always brought hot soup. The work took a whole day, but nobody complained. One year, a heavy snow cut the road, and a lost traveler arrived at the river at dusk. The bridge held strong under his tired steps, and lanterns glowed on the other side. He understood then that a bridge is more than a path across water. It is a promise that nobody will be left alone."];
-const pickStory=p=>{const a=STORIES.filter(x=>x!==p);return a[Math.random()*a.length|0]};
-function step(m){nav('step');st.auto=pickStory(st.auto);
- M.innerHTML=`<div class="step"><h2 style="margin:0">${LBL[m]}</h2><p class="mut" style="margin:0">أضف القصة كنص أو كملف PDF، أو خلّ النص يُختار تلقائيًا</p>
+const MAXW=50;
+const STORIES=["Maya found a tiny brass key inside a dusty library book. She searched the old building until she noticed a small wooden box under the reading table. The key fit perfectly. Inside lay a folded map and a note: every good story begins with a curious reader.","On the first day of spring, Lina planted a single seed in a chipped blue cup. Every morning she gave it water and waited. Weeks passed, and nothing happened. Then one calm morning, a tiny green leaf appeared, and she learned that quiet things take time.","The train left the station just as the sun began to rise. Karim watched the fields pass by with one suitcase and a head full of plans. In his pocket, his mother had hidden a note with four words: write to me often.","Sara was afraid of deep water, yet she signed up for swimming lessons. Slowly, she learned to float. On the last day, her heart raced, but she pushed off the wall and kept going. Fear had simply been waiting for her to try.","A little robot named Pip lived in a quiet repair shop. Every night, he fixed the broken toys while everyone slept. One day, the owner left a tiny toolbox with a card that read: for Pip, with thanks. His lights glowed brighter.","Each spring, the villagers of a small mountain town repaired their old rope bridge together. Children carried tools, elders gave directions, and someone brought hot soup. A bridge, they knew, is more than a path across water. It is a promise."];
+const ex=s=>{const K=(w,r)=>/^[A-Z]/.test(w)?r.charAt(0).toUpperCase()+r.slice(1):r;
+ return String(s).replace(/[’‘]/g,"'")
+  .replace(/\bcan't\b/gi,m=>K(m,'can not')).replace(/\bwon't\b/gi,m=>K(m,'will not')).replace(/\bshan't\b/gi,m=>K(m,'shall not')).replace(/\bain't\b/gi,m=>K(m,'is not'))
+  .replace(/\blet's\b/gi,m=>K(m,'let us'))
+  .replace(/\b([A-Za-z]+)n't\b/gi,'$1 not')
+  .replace(/\bI'm\b/g,'I am').replace(/\b([A-Za-z]+)'re\b/g,'$1 are').replace(/\b([A-Za-z]+)'ve\b/g,'$1 have').replace(/\b([A-Za-z]+)'ll\b/g,'$1 will')
+  .replace(/\b(it|he|she|that|there|here|what|who|where|how)'s\b/gi,(m,a)=>a+' is')
+  .replace(/\b(I|you|he|she|we|they|who)'d\b/gi,(m,a)=>a+' would')};
+const wc=t=>String(t).split(/\s+/).filter(Boolean).length;
+/* keep generated texts at or under MAXW words: drop the longest middle sentence first, never the opening */
+function fit(a){const x=a.map(ex).filter(Boolean);
+ while(x.length>1&&x.reduce((n,t)=>n+wc(t),0)>MAXW){
+  if(x.length>2){let j=1;for(let i=2;i<x.length-1;i++)if(wc(x[i])>wc(x[j]))j=i;x.splice(j,1)}else x.pop()}
+ return x.join(' ')}
+const gen50=()=>{const c=SE.gen();for(const a of c){const x=a.map(ex);if(wc(x.join(' '))<=MAXW)return x.join(' ')}return fit(c[c.length-1])};
+const pickStory=p=>{for(let i=0;i<8;i++){const x=Math.random()<.2?fit(SE.sentences(STORIES[Math.random()*STORIES.length|0])):gen50();if(x!==p)return x}return gen50()};
+function step(m){nav('step');let lv=m;st.auto=pickStory(st.auto);
+ M.innerHTML=`<div class="step"><h2 style="margin:0" id="ttl">${LBL[m]}</h2><p class="mut" style="margin:0">أضف قصتك كنص أو كملف PDF، أو خلّ التطبيق يولّد لك قصة جديدة. ستتدرب على القصة كاملة وبالترتيب من أولها لآخرها.</p>
 <div class="tabs glass" id="tabs"><button id="tt" class="sel">${I('text')}نص</button><button id="ta">${I('spark')}تلقائي</button><button id="tp">${I('file')}PDF</button></div>
-<p class="anote" id="anote"><b>✦</b>سيتم اختيار نص تلقائيًا</p>
-<div class="src"><textarea id="txt" dir="ltr" lang="en" aria-label="النص الإنجليزي" placeholder="Paste your story here…"></textarea><div class="drop" id="drop" style="display:none" tabindex="0" role="button"><div>${I('file')}<p>اسحب ملف PDF هنا أو اضغط للاختيار</p><small class="mut" id="pn"></small></div></div></div><input type="file" id="f" accept="application/pdf" hidden>
-<div class="opts"><div class="og"><span class="mut">عدد الجمل</span><div class="tabs glass" id="cnt">${[5,9,15].map(n=>`<button data-n="${n}" class="${n===opt.n?'sel':''}">${n}</button>`).join('')}</div></div>
+<p class="anote" id="anote"><b>✦</b>قصة جديدة تُولَّد لك في كل مرة</p>
+<div class="src"><textarea id="txt" dir="ltr" lang="en" aria-label="النص الإنجليزي" placeholder="Paste your story here…"></textarea><div class="drop" id="drop" style="display:none" tabindex="0" role="button"><div>${I('file')}<p>اسحب ملف PDF هنا أو اضغط للاختيار</p><small class="mut" id="pn"></small></div></div></div><p class="mut" id="info" aria-live="polite" style="margin:-6px 0 0;font-size:.9rem;min-height:1.4em"></p><input type="file" id="f" accept="application/pdf" hidden>
+<div class="opts"><div class="og"><span class="mut">المستوى</span><div class="tabs glass" id="lvt">${['s1','s2','s3'].map((k,i)=>`<button data-l="${k}" class="${k===m?'sel':''}">${i+1}</button>`).join('')}</div></div>
+<div class="og"><span class="mut">عدد الجمل</span><div class="tabs glass" id="cnt">${[0,5,9,15].map(n=>`<button data-n="${n}" class="${n===opt.n?'sel':''}">${n||'الكل'}</button>`).join('')}</div></div>
 <label class="tog"><input type="checkbox" id="oh" ${opt.hide?'checked':''}><span class="sw"></span>إملاء: اسمع واكتب بدون رؤية الجملة</label>
 <label class="tog"><input type="checkbox" id="ot" ${opt.tr?'checked':''}><span class="sw"></span>إظهار الترجمة</label></div>
-<div class="row"><button class="pri" id="rs">${I('refresh')}نص آخر</button><button class="pri go" id="go">${I('pen')}ابدأ التدريب</button></div></div>`;
- const ta=$('#txt'),d=$('#drop');ta.oninput=()=>{if(!st.autoOn)st.text=ta.value};
+<div class="row"><button class="pri" id="rs">${I('refresh')}قصة جديدة</button><button class="pri go" id="go">${I('pen')}ابدأ التدريب</button></div></div>`;
+ const ta=$('#txt'),d=$('#drop');const RGs={s1:[2,4],s2:[5,10],s3:[11,20]};let _ui;const upd=()=>{clearTimeout(_ui);_ui=setTimeout(()=>{const inf=$('#info');if(!inf)return;if(!ta.value.trim()){inf.textContent='';return}const Ls=segs(ta.value,RGs[lv][0],RGs[lv][1]);inf.textContent=Ls.length?(opt.n&&opt.n<Ls.length?`ستتدرب على أول ${opt.n} من ${Ls.length} جزءًا بالترتيب`:`ستتدرب على القصة كاملة: ${Ls.length} جزءًا بالترتيب`)+' · '+Ls.reduce((a,x)=>a+x.split(' ').length,0)+' كلمة':'ما لقيت نصًا إنجليزيًا في هذا المربع'},180)};
+ ta.oninput=()=>{if(!st.autoOn)st.text=ta.value;upd()};
  const tab=p=>{ta.style.display=p?'none':'block';d.style.display=p?'flex':'none';$('#tp').classList.toggle('sel',!!p);$('#ta').classList.toggle('sel',st.autoOn);$('#tt').classList.toggle('sel',!p&&!st.autoOn)};
- const apply=(p=0)=>{const on=st.autoOn;$('#anote').classList.toggle('show',on);ta.readOnly=on;ta.value=on?st.auto:st.text;$('#rs').style.display=on?'':'none';tab(on?0:p)};
- $('#rs').onclick=()=>{st.auto=pickStory(st.auto);ta.value=st.auto};
+ const apply=(p=0)=>{const on=st.autoOn;$('#anote').classList.toggle('show',on);ta.readOnly=on;ta.value=on?st.auto:st.text;$('#rs').style.display=on?'':'none';tab(on?0:p);upd()};
+ $('#rs').onclick=()=>{st.auto=pickStory(st.auto);ta.value=st.auto;upd()};
  apply();
  $('#tt').onclick=()=>{st.autoOn=false;apply(0)};$('#tp').onclick=()=>{st.autoOn=false;apply(1)};$('#ta').onclick=()=>{st.autoOn=true;apply(0)};
- $('#cnt').onclick=e=>{const b=e.target.closest('button');if(!b)return;opt.n=+b.dataset.n;document.querySelectorAll('#cnt button').forEach(x=>x.classList.toggle('sel',x===b))};
+ $('#cnt').onclick=e=>{const b=e.target.closest('button');if(!b)return;opt.n=+b.dataset.n;document.querySelectorAll('#cnt button').forEach(x=>x.classList.toggle('sel',x===b));upd()};
  d.onclick=()=>$('#f').click();d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#f').click()}};
  $('#f').onchange=e=>e.target.files[0]&&pdf(e.target.files[0]);
  d.ondragover=e=>{e.preventDefault();d.classList.add('h')};d.ondragleave=()=>d.classList.remove('h');d.ondrop=e=>{e.preventDefault();d.classList.remove('h');e.dataTransfer.files[0]&&pdf(e.dataTransfer.files[0])};
- $('#go').onclick=()=>start(m)}
+ $('#lvt').onclick=e=>{const b=e.target.closest('button');if(!b)return;lv=b.dataset.l;document.querySelectorAll('#lvt button').forEach(x=>x.classList.toggle('sel',x===b));$('#ttl').textContent=LBL[lv];upd()};
+ $('#go').onclick=()=>start(lv)}
 async function pdf(f){const pn=$('#pn');if(!window.pdfjsLib){pn.textContent='تعذّر تحميل قارئ PDF. تأكد من اتصال الإنترنت ثم حدّث الصفحة.';return}
  pn.textContent='جاري القراءة…';
  try{const w=await (await fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')).text();pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([w],{type:'text/javascript'}));
-  const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let t='';for(let p=1;p<=d.numPages;p++)t+=(await (await d.getPage(p)).getTextContent()).items.map(x=>x.str).join(' ')+' ';
-  t=t.trim();if(!t){pn.textContent='ما لقيت نصًا داخل الملف. غالبًا هو صور ممسوحة، جرّب ملفًا ثانيًا.';return}
-  st.text=(st.text+'\n'+t).trim();$('#txt').value=st.text;pn.textContent='✓ '+f.name}
+  const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,pg=[];
+  for(let p=1;p<=d.numPages;p++){pg.push((await (await d.getPage(p)).getTextContent()).items);pn.textContent='جاري القراءة… '+p+'/'+d.numPages}
+  const t=SE.pdfText(pg).trim();if(!t){pn.textContent='ما لقيت نصًا داخل الملف. غالبًا هو صور ممسوحة، جرّب ملفًا ثانيًا.';return}
+  st.text=(st.text+'\n\n'+t).trim();const ta=$('#txt');ta.value=st.text;ta.dispatchEvent(new Event('input'));pn.textContent='✓ '+f.name+' · '+d.numPages+' صفحة'}
  catch(e){pn.textContent='تعذّرت قراءة الملف. تأكد أنه PDF سليم وجرّب مرة ثانية.'}}
 function start(m){const t=$('#txt').value;if(!st.autoOn)st.text=t;opt.hide=+$('#oh').checked;opt.tr=+$('#ot').checked;LS.set('typing_opts',opt);
- const [a,b]=({s1:[2,4],s2:[5,10],s3:[11,20]})[m];const it=shuffle(segs(t,a,b)).slice(0,opt.n).map(s=>({s}));
- if(it.length<3){toast('ما لقيت جمل كافية بهذا المستوى. الصق نصًا إنجليزيًا أطول، أو جرّب مستوى ثانيًا.');return}
- st.test=0;begin('s',it)}
+ st.lv=m;const [a,b]=({s1:[2,4],s2:[5,10],s3:[11,20]})[m];let list=segs(t,a,b);
+ if(!list.length){const ar=(t.match(/[\u0600-\u06FF]/g)||[]).length,la=(t.match(/[A-Za-z]/g)||[]).length;toast(ar>la?'القصة لازم تكون بالإنجليزية. الصق نصًا إنجليزيًا أو اختر «تلقائي».':'ما لقيت نصًا إنجليزيًا للتدرّب عليه. الصق قصة أو ارفع ملف PDF.');return}
+ if(opt.n>0)list=list.slice(0,opt.n);
+ st.test=0;begin('s',list.map(s=>({s})))}
 function begin(mode,items){nav('play');Object.assign(st,{mode,items,idx:0,keys:0,hit:0,ok:0,t0:0,act:0,it0:0,res:[],nt:0,nw:0,wrong:new Map(),hide:mode==='s'&&opt.hide?1:0});
  if(st.hide&&(aud.sm||aud.sv<=0))toast('وضع الإملاء يحتاج صوت الكلام. فعّله من الأيقونة في الأعلى.');item()}
 /* typing */
 const mk=(t,c)=>t.split(' ').map(w=>`<span class="wd">${[...w].map(x=>`<span class="c ${c}">${esc(x)}</span>`).join('')}</span>`).join('<span class="c sp"> </span>');
-function blank(it){let d=0;const h=(it.sent||'').split(' ').filter(Boolean).map(t=>(!d&&t.replace(/[^A-Za-z0-9]/g,'').toLowerCase()===it.w)?(d=1,`<span class="box">${mk(it.w,'hid')}</span>`):esc(t)).join(' ');return d?h:h+' <span class="box">'+mk(it.w,'hid')+'</span>'}
+function blank(it){let d=0;const h=(it.sent||'').split(' ').filter(Boolean).map(t=>(!d&&t.replace(/[^A-Za-z0-9]/g,'').toLowerCase()===it.w.replace(/[^a-z0-9]/g,''))?(d=1,`<span class="box">${mk(it.w,'hid')}</span>`):esc(t)).join(' ');return d?h:h+' <span class="box">'+mk(it.w,'hid')+'</span>'}
 const same=it=>st.view==='play'&&st.items[st.idx]===it;
 function item0(){if(st.idx>=st.items.length)return results();const it=st.items[st.idx];st.pos=0;st.typed=[];st.iw=new Set();st.shown=0;st.locked=false;st.ik=0;st.ih=0;st.it0=0;st.target=st.mode==='w'?it.w:it.s;
  $('#prog').textContent=`${st.idx+1}/${st.items.length}`;
@@ -396,7 +668,7 @@ function chars(){return st.mode==='s'?[...M.querySelectorAll('.tgt .c')]:[...M.q
 function noteWrong(i){const it=st.items[st.idx];if(st.mode==='w'){st.wrong.set(it.w,it);st.iw.add(0)}else{if(st.target[i]===' ')return;const wi=st.target.slice(0,i).split(' ').length-1,w=st.target.split(' ')[wi].toLowerCase();st.iw.add(wi);if(w.length>=3&&!st.wrong.has(w))st.wrong.set(w,{w,sent:st.target})}}
 function stats(){const live=st.act+(st.it0?Date.now()-st.it0:0);$('#wpm')&&($('#wpm').textContent=live>=1500?Math.round(st.ok/5/(live/60000)):0);$('#acc')&&($('#acc').textContent=(st.keys?Math.round(st.hit/st.keys*100):100)+'%')}
 function langWarn(){if(Date.now()-(langWarn.t||0)>4000){langWarn.t=Date.now();toast('لغة الكيبورد عربية. بدّلها إلى الإنجليزية وكمّل.')}}
-function press(k){if(st.pos>=st.target.length)return;if(k.charCodeAt(0)>=0x600&&k.charCodeAt(0)<=0x6FF){langWarn();return}
+function press(k){if(st.pos>=st.target.length)return;if(k==='\u2019'||k==='\u2018')k="'";if(k.charCodeAt(0)>=0x600&&k.charCodeAt(0)<=0x6FF){langWarn();return}
  const now=Date.now();if(!st.t0)st.t0=now;if(!st.it0)st.it0=now;
  const cs=chars(),i=st.pos,el=cs[i],good=k.toLowerCase()===st.target[i].toLowerCase();st.keys++;st.ik++;st.typed.push(k);st.pos++;
  if(good){st.ok++;st.hit++;st.ih++;el.classList.add('ok');sfx.ok(i)}
@@ -432,7 +704,7 @@ const fmt=ms=>{const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%
 function results(){nav('results');sfx.done();
  const acc=st.keys?Math.round(st.hit/st.keys*100):100,wpm=st.act>0?Math.round(st.ok/5/(st.act/60000)):0,ws=[...st.wrong.values()],done=st.res.filter(r=>!r.skip);
  const H=LS.get('typing_hist',[]),prev=H.reduce((m,x)=>Math.max(m,x.wpm||0),0),rec=prev>0&&wpm>prev&&st.keys>=20;
- if(st.keys>=20&&wpm>0){H.push({d:Date.now(),wpm,acc,n:done.length,m:st.mode+(st.hide?'d':'')});LS.set('typing_hist',H.slice(-60))}
+ if(st.keys>=20&&wpm>0){H.push({d:Date.now(),wpm,acc,n:done.length,m:st.mode+(st.hide?'d':''),l:st.mode==='s'?st.lv:undefined});LS.set('typing_hist',H.slice(-60))}
  const mx=Math.max(1,...done.map(r=>r.wpm));
  const bars=st.mode==='s'&&done.length>1?`<h3>السرعة لكل جملة</h3><div class="bars" dir="ltr">${done.map(r=>`<div class="col" title="${r.wpm} WPM · ${r.acc}%"><div class="tr"><i style="height:${Math.max(6,r.wpm/mx*100)}%"></i></div><span>${r.wpm}</span></div>`).join('')}</div>`:'';
  M.innerHTML=`<div class="page"><h2 style="text-align:center;margin:0 0 6px">انتهى التدريب 🎉</h2>${rec?`<p class="rec">${I('bolt')}رقم قياسي جديد! تجاوزت أفضل سرعة سابقة (${prev} WPM)</p>`:''}
