@@ -165,11 +165,6 @@ canvas.ct{z-index:99995;width:100vw;height:100vh}
 @keyframes rip{from{opacity:1}to{transform:scale(9);opacity:0}}
 
 
-/* ---- home: the two quick buttons appear as a glass notification for 2.2s ---- */
-.bar.note{position:fixed;top:14px;left:50%;translate:-50% 0;z-index:50;gap:10px;padding:8px 10px;animation:pin .5s cubic-bezier(.2,.8,.2,1);transition:opacity .45s,visibility 0s}
-.bar.note.gone{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s,visibility 0s .45s}
-.bar.note button{background:var(--g-bg);border:1.5px solid var(--g-bd);box-shadow:var(--g-sh);-webkit-backdrop-filter:var(--g-bf);backdrop-filter:var(--g-bf)}
-.bar.note button:hover{background:var(--g-bg-h);border-color:var(--g-bd-h);box-shadow:var(--g-sh),0 0 16px rgba(140,110,255,.3);transform:translateY(-2px)}
 @media(max-width:900px){header{padding:0 8px;gap:6px}.bar button,.side button{font-size:.72rem;padding:.45em .6em}}
 @media(max-width:700px){
  header{display:flex;height:auto;min-height:56px;padding:8px 10px;gap:6px;justify-content:space-between}
@@ -255,12 +250,13 @@ button::after{background:radial-gradient(circle var(--gr,60px) at var(--mx) var(
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){button,.tabs,.bar.glass,.lvl{background:rgba(28,32,72,.72)}}
 @media(max-width:700px){.lvls{margin:6px 0 0;height:auto}.lvl{bottom:auto;height:auto}}
 /* brand animation: a blob sweeps across, reveals the letters and lands as a violet dot */
-.brand .bt{position:relative;display:inline-flex;align-items:center}
+.brand .bt{position:relative;display:inline-flex;align-items:baseline}
 .brand .bt span{display:inline-block}
-.brand .bt em{position:absolute;left:0;top:50%;height:10px;width:10px;margin-top:-5px;border-radius:99px;background:linear-gradient(135deg,#8ea6ff,#b58bff);box-shadow:0 0 12px rgba(150,120,255,.85);opacity:0;pointer-events:none}
+.brand .bt .dt{display:inline-block;width:.3em;height:.3em;margin-left:.14em;border-radius:50%;background:#b58bff;box-shadow:0 0 10px 1px rgba(150,120,255,.75)}
+.brand .bt em{position:absolute;left:0;top:0;transform:translate(-50%,-50%);border-radius:99px;pointer-events:none;opacity:0;will-change:left,top,width,height}
 
 /* home: no top bar; selected tab clearly highlighted */
-body.on-home header .bar{visibility:hidden;pointer-events:none}
+body.on-home header .bar{display:none}body.on-home header .side.end{grid-column:3}
 .tabs button.sel{background:linear-gradient(135deg,#6a5cff,#9b6bff)!important;color:#fff;border:0}
 </style>
 </head>
@@ -274,7 +270,7 @@ body.on-home header .bar{visibility:hidden;pointer-events:none}
 const $=s=>document.querySelector(s), M=$('#main');
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const dict=o=>Object.assign(Object.create(null),o);
-const opt=Object.assign({n:0,hide:0,tr:1},LS.get('typing_opts',{}));if(opt.v!==2){opt.n=0;opt.v=2}
+const opt=Object.assign({n:0,hide:0,tr:1},LS.get('typing_opts',{}));if(opt.v!==2){opt.n=0;opt.v=2}if(![1,2,3].includes(opt.lv))opt.lv=1;
 const st={autoOn:true,showTrash:false,view:'home',text:'',mode:'',items:[],idx:0,pos:0,keys:0,hit:0,ok:0,t0:0,act:0,it0:0,ik:0,ih:0,res:[],wrong:new Map(),locked:false,test:0,hide:0};
 const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -314,12 +310,12 @@ function voiceFor(g){let vs=[];try{vs=speechSynthesis.getVoices()}catch{}vs=vs.f
  return alt?{v:alt,exact:1}:{v:F[0],exact:0}}
 function applyVoice(u){const {v,exact}=voiceFor(vg);if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';u.volume=aud.sv/100;u.rate=((vg==='g'||vg==='h')&&!exact)?.96:.92;u.pitch=exact?1:(vg==='m'?.82:vg==='h'?.9:vg==='g'?1.2:1.12)}
 /* online helpers (free APIs, cached in the browser) */
-const tc=dict(LS.get('typing_tr2',{})),dc=dict(LS.get('typing_def',{}));let _fl;
-const flush=()=>{clearTimeout(_fl);_fl=setTimeout(()=>{for(const o of[tc,dc]){const k=Object.keys(o);if(k.length>500)k.slice(0,k.length-500).forEach(x=>delete o[x])}LS.set('typing_tr2',tc);LS.set('typing_def',dc)},900)};
+const tc=dict(LS.get('typing_tr3',{})),dc=dict(LS.get('typing_def',{}));let _fl;
+const flush=()=>{clearTimeout(_fl);_fl=setTimeout(()=>{for(const o of[tc,dc]){const k=Object.keys(o);if(k.length>500)k.slice(0,k.length-500).forEach(x=>delete o[x])}LS.set('typing_tr3',tc);LS.set('typing_def',dc)},900)};
 const dec=s=>{const t=document.createElement('textarea');t.innerHTML=s;return t.value};
 const net=u=>fetch(u,{signal:window.AbortSignal&&AbortSignal.timeout?AbortSignal.timeout(8000):undefined});
-async function tr(t){if(!t)return'';if(tc[t])return tc[t];
- try{const j=await (await net('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&dt=t&q='+encodeURIComponent(t))).json();const r=(j[0]||[]).map(x=>x&&x[0]||'').join('').trim();if(r){tc[t]=r;flush();return r}}catch{}
+async function tr(t){t=String(t||'').replace(/\s+/g,' ').trim();if(!t)return'';if(tc[t])return tc[t];
+ for(let k=0;k<2;k++){try{const j=await (await net('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&dt=t&ie=UTF-8&oe=UTF-8&q='+encodeURIComponent(t))).json();const r=(j[0]||[]).map(x=>x&&x[0]||'').join('').trim();if(r){tc[t]=r;flush();return r}}catch{}}
  try{const j=await (await net('https://api.mymemory.translated.net/get?q='+encodeURIComponent(t)+'&langpair=en|ar')).json();const r=dec(j.responseData.translatedText||'');if(!r||/MYMEMORY|QUERY LENGTH|INVALID/i.test(r))return'—';tc[t]=r;flush();return r}catch{return'—'}}
 async function def(w){if(w in dc)return dc[w];try{const j=await (await net('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(w))).json();const d=j[0].meanings[0].definitions[0].definition;dc[w]=d;flush();return d}catch{return''}}
 /* text prep */
@@ -369,12 +365,12 @@ function toks(s){
   const br=/[,;:]["')\]]*$/.test(raw)||raw==='—';
   const w=raw==='—'?[]:words(raw);
   if(!w.length){if(br&&out.length)out[out.length-1].br=1;continue}
-  w.forEach((x,i)=>out.push({t:x,br:br&&i===w.length-1?1:0}))}
+  w.forEach((x,i)=>out.push({t:x,br:br&&i===w.length-1?1:0,raw:i?'':raw}))}
  if(out.length)out[out.length-1].se=1;
  return out}
 
 /* ---------- ordered chunking: every word of the story lands in exactly one piece ---------- */
-const EB=new Set('a an the of to in on at by for from with and or but his her their its my your our this that into onto as if than'.split(' '));
+const EB=new Set('a an the of to in on at by for from with and or but his her their its my your our this that into onto as if than because although while when who which where'.split(' '));
 const BB=new Set('and but so because when while where who which until although after before then if as with to in on at from into'.split(' '));
 const cost=(w,c)=>{const a=w[c-1],b=w[c];let k=0;if(a.se)k-=4;else if(a.br)k-=3;else if(BB.has(b.t.toLowerCase()))k-=1.2;if(EB.has(a.t.toLowerCase()))k+=3;return k};
 function split(u,min,max){
@@ -388,18 +384,25 @@ function split(u,min,max){
   if(lo<=hi){best=lo;let bc=1e9;for(let s=lo;s<=hi;s++){const c=Math.abs(s-tg)*.9+cost(u,p+s);if(c<bc){bc=c;best=s}}}
   out.push(u.slice(p,p+best));p+=best}
  return out}
-function segs(text,min,max){
- const S=sentences(text).map(toks).filter(a=>a.length),out=[],soft=Math.max(2,Math.floor(min*.7));
- for(let i=0;i<S.length;i++){
+/* full, meaningful sentences in story order; only very long ones are cut (at clause breaks), tiny fragments join a neighbour */
+const MAXL=48;
+/* levels = words per chunk: 1 -> 2-4, 2 -> 5-10, 3 -> 11-20 (one word more or less is fine so the chunk keeps its meaning) */
+const RNG={1:[2,4],2:[5,10],3:[11,20]};
+function sent(text,lv){
+ const R=RNG[lv],S=sentences(text).map(toks).filter(a=>a.length),out=[];
+ if(!R){for(let i=0;i<S.length;i++){
   let u=S[i].slice();
-  while(u.length<min&&i+1<S.length&&u.length+S[i+1].length<=max){i++;u=u.concat(S[i])}
-  if(u.length<min&&u.length>=soft){out.push(u);continue}
-  if(u.length<min){
-   if(i+1<S.length){i++;u=u.concat(S[i])}
-   else if(out.length){u=out.pop().concat(u)}
-   else{out.push(u);continue}}
-  out.push(...split(u,min,max))}
- return out.map(a=>a.map(x=>x.t).join(' '))}
+  while(u.length<3&&i+1<S.length){i++;u=u.concat(S[i])}
+  if(u.length<3&&out.length)u=out.pop().concat(u);
+  if(u.length>MAXL)out.push(...split(u,16,MAXL));else out.push(u)}}
+ else{const mn=R[0],mx=R[1],mt=Math.max(2,mn-1),U=[];
+  for(let i=0;i<S.length;i++){
+   let u=S[i].slice();
+   while(u.length<mt&&i+1<S.length){i++;u=u.concat(S[i])}
+   if(u.length<mt&&U.length)u=U.pop().concat(u);
+   U.push(u)}
+  U.forEach(u=>{if(u.length>mx+1)out.push(...split(u,mt,mx));else out.push(u)})}
+ return out.map(a=>({s:a.map(x=>x.t).join(' '),o:a.map(x=>x.raw).filter(Boolean).join(' ')}))}
 
 /* ---------- PDF: rebuild readable text from pdf.js items ---------- */
 function pdfText(pages){
@@ -459,17 +462,19 @@ function lost(h){
   '{n} held up the {i} and asked, "Is this yours?"',
   '{oS} stared at it for a moment, and then {os} smiled with relief.',
   R(['"I have been looking everywhere for it," {os} said.','"I thought I would never see it again," {os} said.'])+' "You are very kind."',
-  '{n} walked home with a warm feeling in {p} heart.',R(MK)].map(t=>fill(t,m))}
+  '{n} walked home with a warm feeling in {p} heart.',R(MK),
+  '{S} picked it up and looked for its owner.','Soon, {ow} came running, looking very worried.','{n} gave the {i} back, and {os} smiled with relief.',
+  R(['Honesty can brighten a stranger\'s whole day.','Doing the right thing always feels good.']),'{T}, {n} found {it} lying {sp}.'].map(t=>fill(t,m))}
 
 function skill(h){
  const base={...cx(h),T:cap(R(TIME)),...helper()};
  const k=R([
-  {d:'ride a bike',first:'the bike wobbled and {n} landed on the soft grass',pl:'in the empty yard behind the house',win:'rode all the way to the end of the street without stopping'},
-  {d:'bake bread',first:'the loaf came out flat and as hard as a stone',pl:'in the kitchen after school',win:'pulled a golden, fluffy loaf out of the oven'},
-  {d:'play the guitar',first:'every note sounded wrong and the strings buzzed',pl:'on the back porch',win:'played a whole song from the first note to the last'},
-  {d:'swim across the pool',first:'the water felt deep and cold, and {s} climbed out after only two strokes',pl:'at the shallow end of the pool',win:'swam from one side of the pool to the other'},
-  {d:'draw a horse',first:'the horse looked more like a potato with four legs',pl:'at the kitchen table with a pencil and a pile of paper',win:'drew a horse that everyone could recognize'}]);
- const m={...base,d:k.d,first:fill(k.first,base),pl:k.pl,win:k.win};
+  {d:'ride a bike',first:'the bike wobbled and {n} landed on the soft grass',fs:'the bike wobbled and {n} fell',pl:'in the empty yard behind the house',win:'rode all the way to the end of the street without stopping'},
+  {d:'bake bread',first:'the loaf came out flat and as hard as a stone',fs:'the loaf came out as hard as a stone',pl:'in the kitchen after school',win:'pulled a golden, fluffy loaf out of the oven'},
+  {d:'play the guitar',first:'every note sounded wrong and the strings buzzed',fs:'every note sounded wrong',pl:'on the back porch',win:'played a whole song from the first note to the last'},
+  {d:'swim across the pool',first:'the water felt deep and cold, and {s} climbed out after only two strokes',fs:'the water felt too deep, and {s} climbed out',pl:'at the shallow end of the pool',win:'swam from one side of the pool to the other'},
+  {d:'draw a horse',first:'the horse looked more like a potato with four legs',fs:'the horse looked like a potato',pl:'at the kitchen table with a pencil and a pile of paper',win:'drew a horse that everyone could recognize'}]);
+ const m={...base,d:k.d,first:fill(k.first,base),fs:fill(k.fs,base),pl:k.pl,win:k.win};
  return ['{T}, {n} decided to learn how to {d}.',
   R(['It looked so easy when other people did it.','Everyone else made it look so easy.']),
   'But on the first try, {first}.',
@@ -479,17 +484,18 @@ function skill(h){
   'So {n} practiced {pl} every day, a little longer each time.',
   R(['Slowly, things began to change.','Little by little, the mistakes became smaller.']),
   'After two weeks, {s} {win}.',
-  R(['{C} clapped loudly and shouted, "I knew you could do it!"','{C} smiled and said, "Now you know the secret!"']),R(MT)].map(t=>fill(t,m))}
+  R(['{C} clapped loudly and shouted, "I knew you could do it!"','{C} smiled and said, "Now you know the secret!"']),R(MT),
+  'But on the first try, {fs}.','{n} practiced every day.','Two weeks later, {s} {win}.'].map(t=>fill(t,m))}
 
 function journey(h){
  const base={...cx(h),T:cap(R(TIME))};
  const j=R([
-  {w:'a basket of fresh bread',to:'the farmhouse at the top of the hill',obs:'it began to rain, and the path turned into thick mud',sol:'covered the basket with {p} coat and walked slowly, one careful step at a time',rw:'The family invited {o} inside for a bowl of hot soup.'},
-  {w:'an urgent letter',to:"the doctor's house in the village across the river",obs:'the river rose higher than usual and covered the old wooden bridge',sol:'walked along the bank until {s} found a place where big flat stones crossed the water',rw:'The doctor offered {o} a seat by the warm fire.'},
-  {w:'a small box of medicine',to:'the house of a sick boy at the end of the valley',obs:'a thick fog settled over the road',sol:'followed the sound of the church bell until the lights of the houses appeared',rw:"The boy's mother thanked {o} again and again."},
-  {w:'a jar of golden honey',to:'the market in the next town',obs:'a flock of sheep blocked the narrow road',sol:'waited patiently until the shepherd called his sheep into a field',rw:'A woman at the market bought the whole jar and gave {o} a sweet roll for the walk home.'},
-  {w:'a heavy bag of books',to:'the little school in the mountains',obs:'a strong wind pushed against {o} with every step',sol:'held the bag close and rested behind the big rocks whenever the wind grew too strong',rw:'The children sang a song to welcome {o}.'}]);
- const m={...base,w:j.w,to:j.to,obs:fill(j.obs,base),sol:fill(j.sol,base),rw:fill(j.rw,base)};
+  {w:'a basket of fresh bread',ts:'the farmhouse on the hill',ob2:'it began to rain',sl2:'covered the basket and kept walking',to:'the farmhouse at the top of the hill',obs:'it began to rain, and the path turned into thick mud',sol:'covered the basket with {p} coat and walked slowly, one careful step at a time',rw:'The family invited {o} inside for a bowl of hot soup.'},
+  {w:'an urgent letter',ts:"the doctor's house",ob2:'the river rose over the bridge',sl2:'found some flat stones and crossed carefully',to:"the doctor's house in the village across the river",obs:'the river rose higher than usual and covered the old wooden bridge',sol:'walked along the bank until {s} found a place where big flat stones crossed the water',rw:'The doctor offered {o} a seat by the warm fire.'},
+  {w:'a small box of medicine',ts:"a sick boy's house",ob2:'a thick fog covered the road',sl2:'followed the sound of the church bell',to:'the house of a sick boy at the end of the valley',obs:'a thick fog settled over the road',sol:'followed the sound of the church bell until the lights of the houses appeared',rw:"The boy's mother thanked {o} again and again."},
+  {w:'a jar of golden honey',ts:'the market in town',ob2:'a flock of sheep blocked the road',sl2:'waited until the sheep moved on',to:'the market in the next town',obs:'a flock of sheep blocked the narrow road',sol:'waited patiently until the shepherd called his sheep into a field',rw:'A woman at the market bought the whole jar and gave {o} a sweet roll for the walk home.'},
+  {w:'a heavy bag of books',ts:'the little mountain school',ob2:'a strong wind began to blow',sl2:'rested behind the rocks and then kept going',to:'the little school in the mountains',obs:'a strong wind pushed against {o} with every step',sol:'held the bag close and rested behind the big rocks whenever the wind grew too strong',rw:'The children sang a song to welcome {o}.'}]);
+ const m={...base,w:j.w,to:j.to,ts:j.ts,ob2:j.ob2,sl2:j.sl2,obs:fill(j.obs,base),sol:fill(j.sol,base),rw:fill(j.rw,base)};
  return ['{T}, {n} had to carry {w} to {to}.',
   R(['{S} promised to be careful and set off at once.','{S} packed a few things, promised to be careful, and set off at once.']),
   R(['For a while, everything went well, and {s} even hummed a little tune.','At first the walk was easy, and {s} enjoyed the fresh air.']),
@@ -497,23 +503,25 @@ function journey(h){
   R(['{n} stopped and thought hard about what to do.','{S} felt worried for a moment, but {s} did not turn back.']),
   'At last, {s} {sol}.',
   R(['It took much longer than planned, but {s} never gave up.','It was slow and tiring, but {s} kept going.']),
-  'Finally, {n} reached {to}, tired but very proud.','{rw}',R(MJ)].map(t=>fill(t,m))}
+  'Finally, {n} reached {to}, tired but very proud.','{rw}',R(MJ),
+  '{T}, {n} had to take {w} to {ts}.','But on the way, {ob2}.','At last, {s} {sl2}.','Finally, {n} arrived, tired but proud.'].map(t=>fill(t,m))}
 
 function mystery(h){
  const q=R([
-  {no:'a soft scratching sound behind the garden shed',db:'At first, {s} thought it was only the wind.',fi:'a small hedgehog tangled in a piece of old string',ac:'carefully cut the string with a pair of scissors',en:'The hedgehog shook itself and hurried away into the bushes.',help:1},
-  {no:'a quiet crying sound coming from the woods',db:'At first, {s} thought it was only the wind.',fi:'a puppy with a blue collar, cold and frightened',ac:'wrapped it in a warm jacket and carried it home',en:'The next day, a family knocked on the door and thanked {o} with happy tears.',help:1},
-  {no:'a strange tapping sound at the window',db:'At first, {s} thought it was only a branch in the wind.',fi:'a tiny bird with an injured wing sitting on the window sill',ac:'made a soft bed in a shoebox and gave it some water',en:'A week later, the bird stretched its wings and flew away, singing as it went.',help:1},
-  {no:'something shiny glittering in the sand near the water',db:'At first, {s} thought it was only a piece of broken glass.',fi:'an old glass bottle with a rolled-up note inside',ac:'pulled out the cork and unrolled the note',en:'It was a friendly message from a child on the other side of the sea, so {s} wrote back at once.',help:0},
-  {no:'a loud rustling in the reeds beside the pond',db:'At first, {s} thought it was only the wind.',fi:'a mother duck and five tiny ducklings that had lost their way',ac:'led them slowly across the grass to the water',en:'The ducklings splashed happily into the pond, and the mother duck quacked her thanks.',help:1}]);
+  {no:'a soft scratching sound behind the garden shed',fs2:'a small hedgehog caught in string',db:'At first, {s} thought it was only the wind.',fi:'a small hedgehog tangled in a piece of old string',ac:'carefully cut the string with a pair of scissors',en:'The hedgehog shook itself and hurried away into the bushes.',help:1},
+  {no:'a quiet crying sound coming from the woods',fs2:'a cold, frightened puppy',db:'At first, {s} thought it was only the wind.',fi:'a puppy with a blue collar, cold and frightened',ac:'wrapped it in a warm jacket and carried it home',en:'The next day, a family knocked on the door and thanked {o} with happy tears.',help:1},
+  {no:'a strange tapping sound at the window',fs2:'a tiny bird with an injured wing',db:'At first, {s} thought it was only a branch in the wind.',fi:'a tiny bird with an injured wing sitting on the window sill',ac:'made a soft bed in a shoebox and gave it some water',en:'A week later, the bird stretched its wings and flew away, singing as it went.',help:1},
+  {no:'something shiny glittering in the sand near the water',fs2:'an old bottle with a note inside',db:'At first, {s} thought it was only a piece of broken glass.',fi:'an old glass bottle with a rolled-up note inside',ac:'pulled out the cork and unrolled the note',en:'It was a friendly message from a child on the other side of the sea, so {s} wrote back at once.',help:0},
+  {no:'a loud rustling in the reeds beside the pond',fs2:'a mother duck and her lost ducklings',db:'At first, {s} thought it was only the wind.',fi:'a mother duck and five tiny ducklings that had lost their way',ac:'led them slowly across the grass to the water',en:'The ducklings splashed happily into the pond, and the mother duck quacked her thanks.',help:1}]);
  const base={...cx(h),T:cap(R(TIME))};
- const m={...base,no:q.no,fi:q.fi,ac:q.ac,en:fill(q.en,base)};
+ const m={...base,no:q.no,fs2:q.fs2,fi:q.fi,ac:q.ac,en:fill(q.en,base)};
  return ['{T}, {n} noticed {no}.',fill(q.db,base),
   '{n} could not stop wondering, so {s} took a deep breath and went to find out what it was.',
   'Slowly, {s} moved closer, trying not to make a sound.','There, {s} found {fi}.',
   q.help?R(['{n} felt a little scared, but also very curious.','{S} stayed calm and thought about the best way to help.']):'{n} felt a little nervous, but also very curious.',
   'Without waiting, {s} {ac}.','{en}',
-  '{n} smiled, because a strange little discovery had turned into something wonderful.',R(MC)].map(t=>fill(t,m))}
+  '{n} smiled, because a strange little discovery had turned into something wonderful.',R(MC),
+  'One day, {n} noticed {no}.','There, {s} found {fs2}.'].map(t=>fill(t,m))}
 
 function friends(h){
  const f=who(h.n),pj=R([{pr:'a tall tower of wooden blocks',nn:'tower',cr:'knocked the tower over with a careless elbow'},{pr:'a big painting for the classroom wall',nn:'painting',cr:'spilled a cup of water across the painting'},{pr:'a paper kite with a long colorful tail',nn:'kite',cr:'tore the kite while carrying it outside'}]);
@@ -526,19 +534,21 @@ function friends(h){
   '{S} understood that the {nn} could be made again, but a good friend is much harder to replace.',
   "The next morning, {n} said, \"I am sorry for what I said.\"",
   "{f} smiled and answered, \"I am sorry too. Let's start again.\"",
-  'Before long, they were laughing and making a new {nn}, even better than the first one.',R(MF)].map(t=>fill(t,m))}
+  'Before long, they were laughing and making a new {nn}, even better than the first one.',R(MF),
+  '{n} and {f} were making {pr}.','{n} got angry and said unkind words.','Later, {s} said sorry, and they were friends again.'].map(t=>fill(t,m))}
 
 function grow(h){
- const g=R([{pl:'a sunflower seed',wh:'in an old tin can on the balcony',af:'a thin green stem pushing up through the soil',en:'a huge yellow flower that turned to follow the sun'},
-  {pl:'a tiny apple seed',wh:'in a clay pot beside the kitchen window',af:'two small leaves opening in the soil',en:'a little tree with shiny green leaves'},
-  {pl:'a handful of bean seeds',wh:'in a wooden box on the roof',af:'a tiny green curl rising out of the dirt',en:'a leafy plant full of green beans, enough for the whole family'}]);
+ const g=R([{pl:'a sunflower seed',en2:'a bright yellow flower',wh:'in an old tin can on the balcony',af:'a thin green stem pushing up through the soil',en:'a huge yellow flower that turned to follow the sun'},
+  {pl:'a tiny apple seed',en2:'a little tree',wh:'in a clay pot beside the kitchen window',af:'two small leaves opening in the soil',en:'a little tree with shiny green leaves'},
+  {pl:'a handful of bean seeds',en2:'a plant full of green beans',wh:'in a wooden box on the roof',af:'a tiny green curl rising out of the dirt',en:'a leafy plant full of green beans, enough for the whole family'}]);
  const m={...cx(h),...helper(),T:cap(R(TIME)),...g};
  return ['{T}, {n} planted {pl} {wh}.','Every morning, {s} watered the soil and looked closely for any sign of green.',
   'But nothing happened for many days.','{C} joked that {n} was growing nothing but dirt.',
   '{n} only smiled, because {s} believed that good things take time.','Days turned into weeks, and {s} kept waiting patiently.',
   'Then one calm morning, {s} noticed {af}.',R(['{n} could hardly believe {p} eyes.','{n} gasped and ran to tell everyone.']),
   'Month after month, it grew taller and stronger, until it became {en}.',
-  'Proudly, {n} showed it to {c}, who could only smile and say, "You were right to wait."',R(MG)].map(t=>fill(t,m))}
+  'Proudly, {n} showed it to {c}, who could only smile and say, "You were right to wait."',R(MG),
+  '{n} planted {pl} {wh}.','Every day, {s} watered the soil and waited.','Weeks later, {s} noticed {af}.','In time, it became {en2}.'].map(t=>fill(t,m))}
 
 function newkid(h){
  const f=who(h.n),m={...cx(h),f:f.n,fc:f.c};
@@ -548,20 +558,21 @@ function newkid(h){
   'Then {f}, a {fc} from the same class, came over holding a tray.','{f} smiled and asked, "Is this seat taken?"',
   '{n} shook {p} head, too surprised to speak.','Soon they were talking about their favorite games, and {n} forgot to feel nervous.',
   'By evening, {s} had made a friend, and the school felt smaller.',
-  'The next time {n} saw a new face standing alone, {s} knew exactly what to do.',R(MN)].map(t=>fill(t,m))}
+  'The next time {n} saw a new face standing alone, {s} knew exactly what to do.',R(MN),
+  'On Monday, {n} started at a new school and knew nobody.','At lunch, {s} sat alone.'].map(t=>fill(t,m))}
 
 const PLOTS=[lost,skill,journey,mystery,friends,grow,newkid];
 /* each plot lists coherent sentence sets, fullest first; the app picks the first set that fits in 50 words */
 const KEEP=new Map([
- [lost,[[0,4,5,6,9],[0,4,5,6],[0,4,5,9],[0,4,5,8],[0,4,5]]],
- [skill,[[0,2,3,8,10],[0,2,3,8],[0,2,8,10],[0,2,8],[0,8]]],
- [journey,[[0,3,5,7,9],[0,3,5,7],[0,3,5,9],[0,3,5],[0,5,7]]],
- [mystery,[[0,4,6,7,9],[0,4,6,7],[0,4,6,9],[0,4,6],[0,4]]],
- [friends,[[0,3,8,9,11],[0,3,8,9],[0,3,9],[0,3]]],
- [grow,[[0,2,6,8,10],[0,2,6,8],[0,2,6,10],[0,6,8],[0,6]]],
- [newkid,[[0,3,4,7,9],[0,3,4,7],[0,3,4,9],[0,3,4],[0,3]]]]);
+ [lost,[[14,10,11,12,13],[14,11,5,6,13],[14,10,11,12],[14,11,5,6]]],
+ [skill,[[0,11,12,13,10],[0,11,12,13],[0,2,8,10]]],
+ [journey,[[10,11,12,13,8],[10,11,12,13,9],[10,11,12,13]]],
+ [mystery,[[10,11,6,7],[10,11,6,8]]],
+ [friends,[[12,3,13,14,11],[12,3,13,14],[3,4,8,9]]],
+ [grow,[[11,12,2,13,14],[11,12,13,14,10],[11,12,13,14]]],
+ [newkid,[[10,11,3,4,7],[10,3,4,7],[0,3,4,7]]]]);
 const gen=()=>{const f=R(PLOTS),a=f(who());return KEEP.get(f).map(k=>k.map(i=>a[i]).filter(Boolean))};
-return{segs,sentences,pdfText,gen,norm}})();
+return{segs:sent,sentences,pdfText,gen,norm}})();
 const segs=SE.segs;
 /* ==== end story engine ==== */
 /* views */
@@ -578,7 +589,7 @@ Object.assign(SV,{flame:'<path d="M12 3c1 3.6 5 5.6 5 10a5 5 0 0 1-10 0c0-2 1-3.
 function toast(t){let d=$('#toast');if(!d){d=document.createElement('div');d.id='toast';d.setAttribute('role','status');document.body.appendChild(d)}d.textContent=t;d.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>d.classList.remove('show'),3400)}
 $('#bh').onclick=home;$('#bs').onclick=savedView;$('#n1').onclick=()=>testList(0);$('#n3').onclick=()=>testList(1);
 function testList(s){const a=Object.values(saved).filter(x=>!!x.s===!!s);if(!a.length){toast(s?'ما في كلمات في قائمة المراجعة بعد. اضغط «حفظتها» بجانب أي كلمة محفوظة لتنتقل إلى هنا.':'ما في كلمات محفوظة للتدرّب عليها بعد. احفظ الكلمات التي أخطأت فيها من صفحة النتائج.');return}st.test=1;begin('w',shuffle(a).map(x=>({w:x.w,sent:x.sent,ar:x.ar})))}
-const LBL={w:'تدريب الكلمات',s1:'المستوى 1 · جمل من 2 إلى 4 كلمات',s2:'المستوى 2 · جمل من 5 إلى 10 كلمات',s3:'المستوى 3 · جمل من 11 إلى 20 كلمة'};
+const LBL={w:'تدريب الكلمات',s:'تدريب جديد'};
 const LV=[['train','تدرّب على المحفوظ','<path d="M34 24H24V34M66 24H76V34M34 76H24V66M66 76H76V66"/><circle cx="50" cy="50" r="5"/>'],['new','ابدأ تدريب جديد','<path d="M50 22V78M22 50H78"/>'],['review','راجع المحفوظ','<path d="M74 40A26 26 0 1 0 76 56M74 20V40H54"/>']];
 const dkey=d=>{d=new Date(d);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()};
 function streak(h){const s=new Set(h.map(x=>dkey(x.d)));let n=0;const d=new Date();if(!s.has(dkey(d)))d.setDate(d.getDate()-1);while(s.has(dkey(d))){n++;d.setDate(d.getDate()-1)}return n}
@@ -587,14 +598,34 @@ function home(){const wasHome=st.view==='home'&&!brandFirst;nav('home');const h=
  const sv=Object.values(saved),sub={train:sv.filter(x=>!x.s).length+' كلمة',new:'قصة بالإنجليزية',review:sv.filter(x=>x.s).length+' كلمة'};
  const chips=h.length?`<div class="strip">${sk?`<span class="chip">${I('flame')}<span>سلسلة<b>${dayAr(sk)}</b></span></span>`:''}<span class="chip">${I('bolt')}<span>أفضل سرعة<b>${best}</b>WPM</span></span><span class="chip">${I('target')}<span>الجلسات<b>${h.length}</b></span></span></div>`:'';
  M.innerHTML=`<div class="home2"><div class="brand">${neon(STAR)}<span class=\"bt\">WriteMax</span></div><h1>Type Beyond<br><span>The Story</span></h1><p>اختر ما تريد وابدأ الكتابة من قصصك</p><div class="lvls">${LV.map(([m,t,sh])=>`<button class="lvl" data-m="${m}"><i></i><i></i><i></i><i></i><i></i>${neon(sh)}<b>${t}</b><small>${sub[m]}</small></button>`).join('')}</div>${chips}</div>`;
- document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{const a=b.dataset.m;if(a==='train')return testList(0);if(a==='review')return testList(1);$('.home2').classList.add('out');setTimeout(()=>step('s1'),350)});if(!wasHome)brandAnim();brandFirst=false}
+ document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{const a=b.dataset.m;if(a==='train')return testList(0);if(a==='review')return testList(1);$('.home2').classList.add('out');setTimeout(()=>step(),350)});if(!wasHome)brandAnim();brandFirst=false}
 let brandFirst=true;
 function brandAnim(){const bt=document.querySelector('.brand .bt');if(!bt||!bt.animate)return;
- bt.innerHTML=[...'WriteMax'].map(c=>`<span>${c}</span>`).join('')+'<em></em>';
- const em=bt.querySelector('em');if(matchMedia('(prefers-reduced-motion:reduce)').matches){em.style.display='none';return}
- const D=1100,ls=[...bt.querySelectorAll('span')],W=bt.getBoundingClientRect().width,o={duration:D,fill:'both'};
- ls.forEach((l,i)=>{const t=.15+.4*i/ls.length;l.animate([{opacity:0,filter:'blur(4px)',offset:0},{opacity:0,filter:'blur(4px)',offset:t},{opacity:1,filter:'blur(0px)',offset:t+.08},{opacity:1,filter:'blur(0px)',offset:1}],o)});
- em.animate([{transform:'translateX(-18px)',width:'10px',opacity:0,offset:0},{transform:'translateX(-8px)',width:'10px',opacity:1,offset:.1},{transform:'translateX(0px)',width:'38px',opacity:1,offset:.2},{transform:`translateX(${W*.72}px)`,width:'38px',opacity:1,offset:.65},{transform:`translateX(${W+15}px)`,width:'10px',opacity:1,offset:.8},{transform:`translateX(${W+15}px)`,width:'10px',opacity:1,offset:1}],{...o,easing:'ease-in-out'})}
+ bt.innerHTML=[...'WriteMax'].map(c=>`<span>${c}</span>`).join('')+'<i class="dt"></i><em></em>';
+ const em=bt.querySelector('em'),dt=bt.querySelector('.dt'),ls=[...bt.querySelectorAll('span')];
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches){em.remove();dt.remove();return}
+ /* geometry: the dot ends on the centre of the last letter (x), then fades and drifts away */
+ const B0=bt.getBoundingClientRect(),Dr=dt.getBoundingClientRect(),yb=Dr.bottom-B0.top;dt.remove();
+ const B=bt.getBoundingClientRect(),u=parseFloat(getComputedStyle(bt).fontSize)||18,x0=ls[0].getBoundingClientRect().left-B.left,xr=ls[ls.length-1].getBoundingClientRect();
+ const F=xr.left+xr.width/2-B.left-x0,yc=B.height/2,yd=yb-.27*u,dd=Dr.width,X=f=>x0+f*F;
+ const TS=1.15,T=1500,TOT=T*TS,off=t=>t/T,SL='#8e99b5',AC='#b58bff',E1='cubic-bezier(.3,.55,.45,1)',E2='cubic-bezier(.2,.6,.4,1)',E3='cubic-bezier(.5,0,.3,1)',E4='cubic-bezier(.1,.75,.3,1)',EO='cubic-bezier(.5,0,.8,.45)';
+ const run=(el,prop,arr)=>{const z=arr[arr.length-1];if(z[0]<T)arr=[...arr,[T,z[1]]];return el.animate(arr.map(([t,v,e])=>({offset:off(t),[prop]:v,...(e?{easing:e}:{})})),{duration:TOT,fill:'both'})};
+ /* path of the dot's centre as a fraction of the final dot position: slide in from the right -> rest -> shrink to a circle left of the name -> anticipation -> sweep across the name */
+ const P=[[0,.857,E1],[167,.22],[200,.22,E2],[400,-.04],[570,-.044,E4],[600,.023,'cubic-bezier(.3,.1,.6,1)'],[730,.84,'cubic-bezier(.3,.6,.4,1)'],[830,.985,'ease-out'],[1000,1]];
+ const A=[
+  run(em,'left',[...P.map(([t,f,e])=>[t,X(f)+'px',e]),[1130,X(1)+'px',EO],[1450,X(1)+1.8*u+'px']]),
+  run(em,'width',[[0,1.3*u+'px','cubic-bezier(.2,.7,.3,1)'],[70,2*u+'px'],[200,2*u+'px',E3],[400,.82*u+'px'],[570,.82*u+'px',E4],[600,1.88*u+'px'],[640,2.15*u+'px'],[670,2.06*u+'px'],[700,1.53*u+'px'],[730,.7*u+'px'],[770,.47*u+'px'],[830,dd+'px'],[1000,dd+'px'],[1130,dd+'px',EO],[1450,.15*dd+'px']]),
+  run(em,'height',[[0,.82*u+'px'],[670,.8*u+'px'],[700,.72*u+'px'],[730,.5*u+'px'],[770,.46*u+'px'],[830,dd+'px'],[1000,dd+'px'],[1130,dd+'px',EO],[1450,.15*dd+'px']]),
+  run(em,'top',[[0,yc+'px'],[700,yc+'px','cubic-bezier(.4,0,.2,1)'],[770,yd+'px'],[1130,yd+'px',EO],[1450,yd-1.5*u+'px']]),
+  run(em,'opacity',[[0,0],[50,1],[1130,1,EO],[1450,0]]),
+  run(em,'backgroundColor',[[0,SL],[570,SL],[630,'#9d94cb'],[700,'#ae8df2'],[770,AC],[1000,AC]]),
+  run(em,'boxShadow',[[0,'0 0 0 0 rgba(150,120,255,0)'],[600,'0 0 0 0 rgba(150,120,255,0)'],[770,'0 0 10px 1px rgba(150,120,255,.75)'],[1000,'0 0 10px 1px rgba(150,120,255,.75)']]),
+  run(bt,'letterSpacing',[[0,'-.05em'],[570,'-.05em','cubic-bezier(.2,.7,.25,1)'],[1000,'0em']])];
+ /* each letter appears right behind the dot as it passes */
+ const tAt=f=>{for(let i=5;i<P.length-1;i++){const a=P[i],b=P[i+1];if(f<=b[1]||i===P.length-2)return a[0]+(b[0]-a[0])*Math.min(1,Math.max(0,(f-a[1])/(b[1]-a[1]||1)))}return 700};
+ ls.forEach(l=>{const r=l.getBoundingClientRect(),f=(r.left+r.width/2-B.left-x0)/F,t0=l===ls[ls.length-1]?760:Math.max(560,tAt(f)-25);
+  A.push(l.animate([{opacity:0,offset:0},{opacity:0,offset:off(t0),easing:'ease-out'},{opacity:1,offset:off(t0+330)},{opacity:1,offset:1}],{duration:TOT,fill:'both'}))});
+ Promise.all(A.map(a=>a.finished)).then(()=>{em.remove();A.forEach(a=>a.cancel())}).catch(()=>{})}
 const MAXW=50;
 const STORIES=["Maya found a tiny brass key inside a dusty library book. She searched the old building until she noticed a small wooden box under the reading table. The key fit perfectly. Inside lay a folded map and a note: every good story begins with a curious reader.","On the first day of spring, Lina planted a single seed in a chipped blue cup. Every morning she gave it water and waited. Weeks passed, and nothing happened. Then one calm morning, a tiny green leaf appeared, and she learned that quiet things take time.","The train left the station just as the sun began to rise. Karim watched the fields pass by with one suitcase and a head full of plans. In his pocket, his mother had hidden a note with four words: write to me often.","Sara was afraid of deep water, yet she signed up for swimming lessons. Slowly, she learned to float. On the last day, her heart raced, but she pushed off the wall and kept going. Fear had simply been waiting for her to try.","A little robot named Pip lived in a quiet repair shop. Every night, he fixed the broken toys while everyone slept. One day, the owner left a tiny toolbox with a card that read: for Pip, with thanks. His lights glowed brighter.","Each spring, the villagers of a small mountain town repaired their old rope bridge together. Children carried tools, elders gave directions, and someone brought hot soup. A bridge, they knew, is more than a path across water. It is a promise."];
 const ex=s=>{const K=(w,r)=>/^[A-Z]/.test(w)?r.charAt(0).toUpperCase()+r.slice(1):r;
@@ -611,31 +642,30 @@ function fit(a){const x=a.map(ex).filter(Boolean);
  while(x.length>1&&x.reduce((n,t)=>n+wc(t),0)>MAXW){
   if(x.length>2){let j=1;for(let i=2;i<x.length-1;i++)if(wc(x[i])>wc(x[j]))j=i;x.splice(j,1)}else x.pop()}
  return x.join(' ')}
-const gen50=()=>{const c=SE.gen();for(const a of c){const x=a.map(ex);if(wc(x.join(' '))<=MAXW)return x.join(' ')}return fit(c[c.length-1])};
+const gen50=()=>{for(let i=0;i<6;i++){const c=SE.gen().map(a=>a.map(ex)).filter(x=>wc(x.join(' '))<=MAXW);if(c.length)return c[Math.random()*c.length|0].join(' ')}return fit(SE.gen().pop())};
 const pickStory=p=>{for(let i=0;i<8;i++){const x=Math.random()<.2?fit(SE.sentences(STORIES[Math.random()*STORIES.length|0])):gen50();if(x!==p)return x}return gen50()};
-function step(m){nav('step');let lv=m;st.auto=pickStory(st.auto);
- M.innerHTML=`<div class="step"><h2 style="margin:0" id="ttl">${LBL[m]}</h2><p class="mut" style="margin:0">أضف قصتك كنص أو كملف PDF، أو خلّ التطبيق يولّد لك قصة جديدة. ستتدرب على القصة كاملة وبالترتيب من أولها لآخرها.</p>
+function step(){nav('step');st.auto=pickStory(st.auto);
+ M.innerHTML=`<div class="step"><h2 style="margin:0" id="ttl">${LBL.s}</h2><p class="mut" style="margin:0">أضف قصتك كنص أو كملف PDF، أو خلّ التطبيق يولّد لك قصة جديدة. ستتدرب على القصة كاملة وبالترتيب من أولها لآخرها.</p>
 <div class="tabs glass" id="tabs"><button id="tt" class="sel">${I('text')}نص</button><button id="ta">${I('spark')}تلقائي</button><button id="tp">${I('file')}PDF</button></div>
 <p class="anote" id="anote"><b>✦</b>قصة جديدة تُولَّد لك في كل مرة</p>
 <div class="src"><textarea id="txt" dir="ltr" lang="en" aria-label="النص الإنجليزي" placeholder="Paste your story here…"></textarea><div class="drop" id="drop" style="display:none" tabindex="0" role="button"><div>${I('file')}<p>اسحب ملف PDF هنا أو اضغط للاختيار</p><small class="mut" id="pn"></small></div></div></div><p class="mut" id="info" aria-live="polite" style="margin:-6px 0 0;font-size:.9rem;min-height:1.4em"></p><input type="file" id="f" accept="application/pdf" hidden>
-<div class="opts"><div class="og"><span class="mut">المستوى</span><div class="tabs glass" id="lvt">${['s1','s2','s3'].map((k,i)=>`<button data-l="${k}" class="${k===m?'sel':''}">${i+1}</button>`).join('')}</div></div>
-<div class="og"><span class="mut">عدد الجمل</span><div class="tabs glass" id="cnt">${[0,5,9,15].map(n=>`<button data-n="${n}" class="${n===opt.n?'sel':''}">${n||'الكل'}</button>`).join('')}</div></div>
+<div class="opts"><div class="og"><span class="mut">المستوى</span><div class="tabs glass" id="lvl">${[1,2,3].map(n=>`<button data-n="${n}" class="${n===opt.lv?'sel':''}">${n}</button>`).join('')}</div></div><div class="og"><span class="mut">عدد الجمل</span><div class="tabs glass" id="cnt">${[0,5,9,15].map(n=>`<button data-n="${n}" class="${n===opt.n?'sel':''}">${n||'الكل'}</button>`).join('')}</div></div>
 <label class="tog"><input type="checkbox" id="oh" ${opt.hide?'checked':''}><span class="sw"></span>إملاء: اسمع واكتب بدون رؤية الجملة</label>
 <label class="tog"><input type="checkbox" id="ot" ${opt.tr?'checked':''}><span class="sw"></span>إظهار الترجمة</label></div>
 <div class="row"><button class="pri" id="rs">${I('refresh')}قصة جديدة</button><button class="pri go" id="go">${I('pen')}ابدأ التدريب</button></div></div>`;
- const ta=$('#txt'),d=$('#drop');const RGs={s1:[2,4],s2:[5,10],s3:[11,20]};let _ui;const upd=()=>{clearTimeout(_ui);_ui=setTimeout(()=>{const inf=$('#info');if(!inf)return;if(!ta.value.trim()){inf.textContent='';return}const Ls=segs(ta.value,RGs[lv][0],RGs[lv][1]);inf.textContent=Ls.length?(opt.n&&opt.n<Ls.length?`ستتدرب على أول ${opt.n} من ${Ls.length} جزءًا بالترتيب`:`ستتدرب على القصة كاملة: ${Ls.length} جزءًا بالترتيب`)+' · '+Ls.reduce((a,x)=>a+x.split(' ').length,0)+' كلمة':'ما لقيت نصًا إنجليزيًا في هذا المربع'},180)};
+ const ta=$('#txt'),d=$('#drop');let _ui;const upd=()=>{clearTimeout(_ui);_ui=setTimeout(()=>{const inf=$('#info');if(!inf)return;if(!ta.value.trim()){inf.textContent='';return}const Ls=segs(ta.value,opt.lv);inf.textContent=Ls.length?(opt.n&&opt.n<Ls.length?`ستتدرب على أول ${opt.n} من ${Ls.length} جملة بالترتيب`:`ستتدرب على القصة كاملة: ${Ls.length} جملة بالترتيب`)+' · '+Ls.reduce((a,x)=>a+x.s.split(' ').length,0)+' كلمة':'ما لقيت نصًا إنجليزيًا في هذا المربع'},180)};
  ta.oninput=()=>{if(!st.autoOn)st.text=ta.value;upd()};
  const tab=p=>{ta.style.display=p?'none':'block';d.style.display=p?'flex':'none';$('#tp').classList.toggle('sel',!!p);$('#ta').classList.toggle('sel',st.autoOn);$('#tt').classList.toggle('sel',!p&&!st.autoOn)};
  const apply=(p=0)=>{const on=st.autoOn;$('#anote').classList.toggle('show',on);ta.readOnly=on;ta.value=on?st.auto:st.text;$('#rs').style.display=on?'':'none';tab(on?0:p);upd()};
  $('#rs').onclick=()=>{st.auto=pickStory(st.auto);ta.value=st.auto;upd()};
  apply();
  $('#tt').onclick=()=>{st.autoOn=false;apply(0)};$('#tp').onclick=()=>{st.autoOn=false;apply(1)};$('#ta').onclick=()=>{st.autoOn=true;apply(0)};
+ $('#lvl').onclick=e=>{const b=e.target.closest('button');if(!b)return;opt.lv=+b.dataset.n;LS.set('typing_opts',opt);document.querySelectorAll('#lvl button').forEach(x=>x.classList.toggle('sel',x===b));upd()};
  $('#cnt').onclick=e=>{const b=e.target.closest('button');if(!b)return;opt.n=+b.dataset.n;document.querySelectorAll('#cnt button').forEach(x=>x.classList.toggle('sel',x===b));upd()};
  d.onclick=()=>$('#f').click();d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#f').click()}};
  $('#f').onchange=e=>e.target.files[0]&&pdf(e.target.files[0]);
  d.ondragover=e=>{e.preventDefault();d.classList.add('h')};d.ondragleave=()=>d.classList.remove('h');d.ondrop=e=>{e.preventDefault();d.classList.remove('h');e.dataTransfer.files[0]&&pdf(e.dataTransfer.files[0])};
- $('#lvt').onclick=e=>{const b=e.target.closest('button');if(!b)return;lv=b.dataset.l;document.querySelectorAll('#lvt button').forEach(x=>x.classList.toggle('sel',x===b));$('#ttl').textContent=LBL[lv];upd()};
- $('#go').onclick=()=>start(lv)}
+ $('#go').onclick=()=>start()}
 async function pdf(f){const pn=$('#pn');if(!window.pdfjsLib){pn.textContent='تعذّر تحميل قارئ PDF. تأكد من اتصال الإنترنت ثم حدّث الصفحة.';return}
  pn.textContent='جاري القراءة…';
  try{const w=await (await fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')).text();pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([w],{type:'text/javascript'}));
@@ -644,22 +674,24 @@ async function pdf(f){const pn=$('#pn');if(!window.pdfjsLib){pn.textContent='ت�
   const t=SE.pdfText(pg).trim();if(!t){pn.textContent='ما لقيت نصًا داخل الملف. غالبًا هو صور ممسوحة، جرّب ملفًا ثانيًا.';return}
   st.text=(st.text+'\n\n'+t).trim();const ta=$('#txt');ta.value=st.text;ta.dispatchEvent(new Event('input'));pn.textContent='✓ '+f.name+' · '+d.numPages+' صفحة'}
  catch(e){pn.textContent='تعذّرت قراءة الملف. تأكد أنه PDF سليم وجرّب مرة ثانية.'}}
-function start(m){const t=$('#txt').value;if(!st.autoOn)st.text=t;opt.hide=+$('#oh').checked;opt.tr=+$('#ot').checked;LS.set('typing_opts',opt);
- st.lv=m;const [a,b]=({s1:[2,4],s2:[5,10],s3:[11,20]})[m];let list=segs(t,a,b);
+function start(){const t=$('#txt').value;if(!st.autoOn)st.text=t;opt.hide=+$('#oh').checked;opt.tr=+$('#ot').checked;LS.set('typing_opts',opt);
+ let list=segs(t,opt.lv);
  if(!list.length){const ar=(t.match(/[\u0600-\u06FF]/g)||[]).length,la=(t.match(/[A-Za-z]/g)||[]).length;toast(ar>la?'القصة لازم تكون بالإنجليزية. الصق نصًا إنجليزيًا أو اختر «تلقائي».':'ما لقيت نصًا إنجليزيًا للتدرّب عليه. الصق قصة أو ارفع ملف PDF.');return}
  if(opt.n>0)list=list.slice(0,opt.n);
- st.test=0;begin('s',list.map(s=>({s})))}
+ st.test=0;begin('s',list)}
 function begin(mode,items){nav('play');Object.assign(st,{mode,items,idx:0,keys:0,hit:0,ok:0,t0:0,act:0,it0:0,res:[],nt:0,nw:0,wrong:new Map(),hide:mode==='s'&&opt.hide?1:0});
  if(st.hide&&(aud.sm||aud.sv<=0))toast('وضع الإملاء يحتاج صوت الكلام. فعّله من الأيقونة في الأعلى.');item()}
 /* typing */
 const mk=(t,c)=>t.split(' ').map(w=>`<span class="wd">${[...w].map(x=>`<span class="c ${c}">${esc(x)}</span>`).join('')}</span>`).join('<span class="c sp"> </span>');
 function blank(it){let d=0;const h=(it.sent||'').split(' ').filter(Boolean).map(t=>(!d&&t.replace(/[^A-Za-z0-9]/g,'').toLowerCase()===it.w.replace(/[^a-z0-9]/g,''))?(d=1,`<span class="box">${mk(it.w,'hid')}</span>`):esc(t)).join(' ');return d?h:h+' <span class="box">'+mk(it.w,'hid')+'</span>'}
 const same=it=>st.view==='play'&&st.items[st.idx]===it;
+const say=it=>it.o||it.s;
+const loadTr=it=>{const el=$('#ar');if(!el)return;tr(say(it)).then(t=>{if(!same(it)||!$('#ar'))return;el.textContent=t;el.style.cursor=t==='—'?'pointer':'';el.onclick=t==='—'?()=>{el.textContent='…';loadTr(it)}:null})};
 function item0(){if(st.idx>=st.items.length)return results();const it=st.items[st.idx];st.pos=0;st.typed=[];st.iw=new Set();st.shown=0;st.locked=false;st.ik=0;st.ih=0;st.it0=0;st.target=st.mode==='w'?it.w:it.s;
  $('#prog').textContent=`${st.idx+1}/${st.items.length}`;
  const pb=`<div class="pbar"><i style="width:${st.idx/st.items.length*100}%"></i></div>`,sb='<div class="stats" dir="ltr"><b id="wpm">0</b> WPM &nbsp;|&nbsp; <b id="acc">100%</b> ACC</div>';
  if(st.mode==='s'){M.innerHTML=`<section class="pane">${pb}<div class="tgt" dir="ltr" lang="en">${mk(it.s,st.hide?'hid':'ghost')}</div>${st.hide?'<p class="say">اكتب ما تسمعه. اضغط <kbd>Tab</kbd> لإظهار الجملة.</p>':''}${opt.tr?'<div class="ar" id="ar">…</div>':''}${sb}<div class="keyh">اضغط <kbd>\\</kbd> للاستماع · <kbd>Esc</kbd> للخروج</div></section>`;
-  speak(it.s);if(opt.tr){tr(it.s).then(t=>same(it)&&$('#ar')&&($('#ar').textContent=t));const nx=st.items[st.idx+1];nx&&tr(nx.s)}setCur()}
+  speak(say(it));if(opt.tr){loadTr(it);for(let k=1;k<=2;k++){const nx=st.items[st.idx+k];nx&&setTimeout(()=>tr(say(nx)),500*k)}}setCur()}
  else{M.innerHTML=`<section class="pane center">${pb}<h2 id="a1">…</h2><p class="ar" id="a2"></p><p class="en" id="a3" dir="ltr" lang="en"></p><div class="vl"></div><p class="sent" dir="ltr" lang="en">${blank(it)}</p>${st.test?`<div class="row" style="margin-top:22px"><button id="hb1">${I('target')}Hint</button><button id="hb2">${I('book')}أظهر الإجابة</button></div>`:''}<div class="keyh"><kbd>Tab</kbd> تلميح · <kbd>\\</kbd> للاستماع · <kbd>Esc</kbd> للخروج</div>${sb}</section>`;
   (async()=>{const ar=it.ar||await tr(it.w);if(!same(it))return;$('#a1').textContent=ar;const d=await def(it.w);if(!same(it))return;$('#a3').textContent=d;const da=d?await tr(d):'';same(it)&&($('#a2').textContent=da)})();setCur();
   if(st.test){$('#hb1').onclick=e=>{e.currentTarget.blur();hint(1)};$('#hb2').onclick=e=>{e.currentTarget.blur();toggleAns()}}}
@@ -676,7 +708,7 @@ function press(k){if(st.pos>=st.target.length)return;if(k==='\u2019'||k==='\u201
  stats();setCur();
  if(st.pos===st.target.length&&st.typed.every((c,j)=>c.toLowerCase()===st.target[j].toLowerCase())){st.locked=true;
   const dt=now-st.it0;st.act+=dt;st.it0=0;st.res.push({wpm:Math.round(st.target.length/5/(Math.max(dt,400)/60000)),acc:Math.round(st.ih/st.ik*100)});stats();
-  st.nt+=st.target.split(' ').length;st.nw+=st.iw.size;setTimeout(sfx.done,120);const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):st.target);setTimeout(()=>{st.idx++;item()},1100)}}
+  st.nt+=st.target.split(' ').length;st.nw+=st.iw.size;setTimeout(sfx.done,120);const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):say(it));setTimeout(()=>{st.idx++;item()},1100)}}
 function curPos(){const pane=M.querySelector('.pane');if(!pane)return null;const cs=chars(),el=cs[st.pos];if(!el)return null;const pr=pane.getBoundingClientRect(),r=el.getClientRects()[0];
  if(!r||r.width<1.5){const pv=cs[st.pos-1]||el,q=pv.getBoundingClientRect(),f=parseFloat(getComputedStyle(pv).fontSize)*.3;return{L:q.right-pr.left,W:f,T:q.bottom-pr.top+2}}
  return{L:r.left-pr.left,W:r.width,T:r.bottom-pr.top+2}}
@@ -696,7 +728,7 @@ function back(){if(!st.pos)return;const i=--st.pos,el=chars()[i],was=el.classLis
 addEventListener('keydown',e=>{if(e.key==='Escape'&&st.view==='play'){e.preventDefault();home();return}
  if(st.view!=='play'||st.locked)return;
  if(e.key==='Backspace'){e.preventDefault();back();return}
- if(e.key==='\\'){e.preventDefault();const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):it.s);return}
+ if(e.key==='\\'){e.preventDefault();const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):say(it));return}
  if(e.key==='Tab'&&(st.mode==='w'||st.hide)){e.preventDefault();toggleAns();return}
  if(e.key.length!==1||e.ctrlKey||e.metaKey||e.altKey)return;e.preventDefault();press(e.key)});
 /* results */
@@ -704,7 +736,7 @@ const fmt=ms=>{const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%
 function results(){nav('results');sfx.done();
  const acc=st.keys?Math.round(st.hit/st.keys*100):100,wpm=st.act>0?Math.round(st.ok/5/(st.act/60000)):0,ws=[...st.wrong.values()],done=st.res.filter(r=>!r.skip);
  const H=LS.get('typing_hist',[]),prev=H.reduce((m,x)=>Math.max(m,x.wpm||0),0),rec=prev>0&&wpm>prev&&st.keys>=20;
- if(st.keys>=20&&wpm>0){H.push({d:Date.now(),wpm,acc,n:done.length,m:st.mode+(st.hide?'d':''),l:st.mode==='s'?st.lv:undefined});LS.set('typing_hist',H.slice(-60))}
+ if(st.keys>=20&&wpm>0){H.push({d:Date.now(),wpm,acc,n:done.length,m:st.mode+(st.hide?'d':'')});LS.set('typing_hist',H.slice(-60))}
  const mx=Math.max(1,...done.map(r=>r.wpm));
  const bars=st.mode==='s'&&done.length>1?`<h3>السرعة لكل جملة</h3><div class="bars" dir="ltr">${done.map(r=>`<div class="col" title="${r.wpm} WPM · ${r.acc}%"><div class="tr"><i style="height:${Math.max(6,r.wpm/mx*100)}%"></i></div><span>${r.wpm}</span></div>`).join('')}</div>`:'';
  M.innerHTML=`<div class="page"><h2 style="text-align:center;margin:0 0 6px">انتهى التدريب 🎉</h2>${rec?`<p class="rec">${I('bolt')}رقم قياسي جديد! تجاوزت أفضل سرعة سابقة (${prev} WPM)</p>`:''}
@@ -796,7 +828,7 @@ kb.addEventListener('input',()=>{if(st.view!=='play'||st.locked){kbReset();retur
  kb.value=kprev=st.typed.join('')});
 function addTools(){const p=M.querySelector('.pane');if(!p)return;const w=document.createElement('div');w.className='tools';
  const add=(t,ic,fn)=>{const b=document.createElement('button');b.className='ib';b.title=t;b.setAttribute('aria-label',t);b.innerHTML=I(ic);b.onclick=e=>{e.stopPropagation();e.currentTarget.blur();fn();coarse&&st.view==='play'&&kb.focus({preventScroll:true})};w.appendChild(b)};
- add('الرئيسية','home',home);add('استمع','talk',()=>{const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):it.s)});add('تخطَّ هذه الجملة','skip',skip);p.appendChild(w)}
+ add('الرئيسية','home',home);add('استمع','talk',()=>{const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):say(it))});add('تخطَّ هذه الجملة','skip',skip);p.appendChild(w)}
 function skip(){if(st.locked||st.view!=='play')return;if(st.it0){st.act+=Date.now()-st.it0;st.it0=0}st.res.push({skip:1});st.idx++;item()}
 function item(){kbReset();item0();if(st.view==='play'&&M.querySelector('.pane')){addTools();coarse&&kb.focus({preventScroll:true})}}
 M.addEventListener('click',()=>{coarse&&st.view==='play'&&kb.focus({preventScroll:true})});
