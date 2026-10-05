@@ -258,46 +258,13 @@ button::after{background:radial-gradient(circle var(--gr,60px) at var(--mx) var(
 /* home: no top bar; selected tab clearly highlighted */
 body.on-home header .bar{display:none}body.on-home header .side.end{grid-column:3}
 .tabs button.sel{background:linear-gradient(135deg,#6a5cff,#9b6bff)!important;color:#fff;border:0}
-
-/* ---- account popup + resume ---- */
-#bacc.on{border-color:rgba(127,211,154,.75);box-shadow:0 0 12px rgba(127,211,154,.25)}
-#acct{position:fixed;top:74px;left:16px;z-index:61;width:min(350px,calc(100vw - 24px));max-height:calc(100% - 90px);overflow:auto;padding:16px;border-radius:24px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);background:rgba(8,12,38,.9);border:1px solid rgba(140,175,255,.35);box-shadow:0 18px 40px rgba(0,0,10,.6)}
-#acct[hidden]{display:none}
-:is(#acct,#gate) .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-:is(#acct,#gate) .ph b{font-family:var(--fd);font-size:1.05rem}
-:is(#acct,#gate) p{margin:0 0 14px;color:var(--mut);font-size:.88rem;line-height:1.75}
-:is(#acct,#gate) .col{display:flex;flex-direction:column;gap:10px}
-:is(#acct,#gate) .wide{width:100%;justify-content:center}
-:is(#acct,#gate) .pri{background:linear-gradient(135deg,#6f6bff,#9a6cff);border-color:rgba(190,170,255,.6)}
-:is(#acct,#gate) input{width:100%;font:inherit;font-size:.95rem;color:var(--fg);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:.7em .9em;outline:none;direction:ltr;text-align:left}
-:is(#acct,#gate) input:focus{border-color:rgba(120,165,255,.8);box-shadow:0 0 0 3px rgba(90,130,255,.2)}
-:is(#acct,#gate) input::placeholder{color:#7f86ad;direction:rtl}
-:is(#acct,#gate) .or{display:flex;align-items:center;gap:10px;color:#7f86ad;font-size:.78rem}
-:is(#acct,#gate) .or::before,:is(#acct,#gate) .or::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.12)}
-:is(#acct,#gate) .err{min-height:1.2em;color:var(--bad);font-size:.82rem;line-height:1.6}
-:is(#acct,#gate) .err.good{color:var(--ok)}
-:is(#acct,#gate) .alt{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-:is(#acct,#gate) .lnk{background:none;border:0;padding:.25em .3em;color:#aab4ff;font-size:.82rem;border-radius:8px}
-:is(#acct,#gate) .lnk,:is(#acct,#gate) .lnk:hover{box-shadow:none!important;border-color:transparent;text-shadow:none}:is(#acct,#gate) .lnk:hover{color:#fff;text-decoration:underline}:is(#acct,#gate) .lnk::before,:is(#acct,#gate) .lnk::after{display:none}
-:is(#acct,#gate) .me{display:flex;align-items:center;gap:12px;margin:6px 0 12px}
-:is(#acct,#gate) .av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-family:var(--fd);background:linear-gradient(135deg,#6f6bff,#9a6cff);flex:none}
-:is(#acct,#gate) .me div{min-width:0}:is(#acct,#gate) .me b,:is(#acct,#gate) .me small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-:is(#acct,#gate) .me small{color:var(--mut);direction:ltr;text-align:right}
-#gate{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:16px;background:rgba(3,4,12,.84);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:auto}
-#gate .gc{width:min(390px,100%);padding:24px 20px 18px;border-radius:28px;background:rgba(8,12,38,.92);border:1px solid rgba(140,175,255,.35);box-shadow:0 24px 60px rgba(0,0,10,.7)}
-#gate .gl{font-family:var(--fd);font-weight:800;font-size:1.6rem;text-align:center;margin-bottom:4px}
-#gate h2{margin:0 0 6px;text-align:center;font-size:1.05rem;font-weight:600}
-#gate .gc p{text-align:center}
-button.resume{margin:18px auto 0;padding:.6em 1.3em;border-color:rgba(127,211,154,.55)}
-button.resume b{margin-inline-start:.5em;color:var(--ok);font-family:var(--fd)}
-@media(max-width:700px){#acct{top:64px;left:8px}}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#b3bfff"/></linearGradient></defs></svg>
 <header><div class="side"><button id="bh"><span class="ic" data-i="home"></span><span class="lb">الرئيسية</span></button></div>
 <div class="bar glass"><button id="n1" title="تدرّب على المحفوظ"><span class="ic" data-i="target"></span><span class="lb">تدرّب على المحفوظ</span></button><button id="n3" title="راجع المحفوظ"><span class="ic" data-i="refresh"></span><span class="lb">راجع المحفوظ</span></button></div>
-<div class="side end"><span id="prog"></span><button id="bacc" class="ib" title="الحساب" aria-label="الحساب"><span class="ic" data-i="user"></span></button><button id="bv" class="ib" title="صوت الكلام" aria-label="صوت الكلام"><span class="ic" data-i="talk"></span></button><button id="bfx" class="ib" title="المؤثرات الصوتية" aria-label="المؤثرات الصوتية"><span class="ic" data-i="spk"></span></button><button id="bs"><span class="ic" data-i="star"></span><span class="lb">الكلمات المحفوظة</span></button></div></header>
+<div class="side end"><span id="prog"></span><button id="bv" class="ib" title="صوت الكلام" aria-label="صوت الكلام"><span class="ic" data-i="talk"></span></button><button id="bfx" class="ib" title="المؤثرات الصوتية" aria-label="المؤثرات الصوتية"><span class="ic" data-i="spk"></span></button><button id="bs"><span class="ic" data-i="star"></span><span class="lb">الكلمات المحفوظة</span></button></div></header>
 <main id="main"></main>
 <script>
 const $=s=>document.querySelector(s), M=$('#main');
@@ -615,7 +582,6 @@ const neon=sh=>`<svg class="nz" viewBox="0 0 100 100"><g class="gl">${sh}</g><g 
 const LOGO='data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="#050a24"/><g fill="none" stroke-linejoin="round"><path d="${SP}" stroke="#2a64ff" stroke-width="9" opacity=".6"/><path d="${SP}" stroke="#eaf2ff" stroke-width="3"/></g></svg>`);
 const SV={home:'<path d="M3 11 12 3l9 8v10H3z"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/>',book:'<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',refresh:'<path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/>',star:'<path d="m12 3 2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 16.9 6.4 20l1.3-6.2L3 9.5l6.3-.7z"/>',text:'<path d="M4 6h16M4 12h16M4 18h9"/>',file:'<path d="M6 3h8l5 5v13H6zM14 3v5h5"/>',pen:'<path d="M4 20l1-5L16.5 3.5 20 7 8.5 19z"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'};
 Object.assign(SV,{spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',talk:'<circle cx="9" cy="8" r="3.4"/><path d="M3 20.5a6 6 0 0 1 12 0"/><path d="M16.5 6.2a4.2 4.2 0 0 1 0 5.6M19.2 3.8a7.6 7.6 0 0 1 0 10.4"/>',talkoff:'<circle cx="9" cy="8" r="3.4"/><path d="M3 20.5a6 6 0 0 1 12 0"/><path d="M17 6l5 5M22 6l-5 5"/>',spk:'<path d="M4 9.5v5h3.5l5 4v-13l-5 4z"/><path d="M16 9.3a4 4 0 0 1 0 5.4M18.6 6.6a8 8 0 0 1 0 10.8"/>',spkoff:'<path d="M4 9.5v5h3.5l5 4v-13l-5 4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/>'});
-SV.user='<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>';SV.play='<path d="M7 4l13 8-13 8z"/>';
 const I=n=>`<span class="ic"><svg viewBox="0 0 24 24">${SV[n]}</svg></span>`;
 document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=`<svg viewBox="0 0 24 24">${SV[e.dataset.i]}</svg>`);
 {const l=document.createElement('link');l.rel='icon';l.href=LOGO;document.head.appendChild(l)}
@@ -632,7 +598,6 @@ function home(){const wasHome=st.view==='home'&&!brandFirst;nav('home');const h=
  const sv=Object.values(saved),sub={train:sv.filter(x=>!x.s).length+' كلمة',new:'قصة بالإنجليزية',review:sv.filter(x=>x.s).length+' كلمة'};
  const chips=h.length?`<div class="strip">${sk?`<span class="chip">${I('flame')}<span>سلسلة<b>${dayAr(sk)}</b></span></span>`:''}<span class="chip">${I('bolt')}<span>أفضل سرعة<b>${best}</b>WPM</span></span><span class="chip">${I('target')}<span>الجلسات<b>${h.length}</b></span></span></div>`:'';
  M.innerHTML=`<div class="home2"><div class="brand">${neon(STAR)}<span class=\"bt\">WriteMax</span></div><h1>Type Beyond<br><span>The Story</span></h1><p>اختر ما تريد وابدأ الكتابة من قصصك</p><div class="lvls">${LV.map(([m,t,sh])=>`<button class="lvl" data-m="${m}"><i></i><i></i><i></i><i></i><i></i>${neon(sh)}<b>${t}</b><small>${sub[m]}</small></button>`).join('')}</div>${chips}</div>`;
- {let r=null;try{r=JSON.parse(localStorage.getItem('typing_resume')||'null')}catch{}if(r&&Array.isArray(r.items)&&r.idx>0&&r.idx<r.items.length){const b=document.createElement('button');b.className='resume';b.innerHTML=I('play')+`<span>متابعة من حيث توقفت<b>${r.idx}/${r.items.length}</b></span>`;b.onclick=()=>{st.test=0;begin('s',r.items,r.idx)};const lv=$('.home2 .lvls');lv&&lv.after(b)}}
  document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{const a=b.dataset.m;if(a==='train')return testList(0);if(a==='review')return testList(1);$('.home2').classList.add('out');setTimeout(()=>step(),350)});if(!wasHome)brandAnim();brandFirst=false}
 let brandFirst=true;
 function brandAnim(){const bt=document.querySelector('.brand .bt');if(!bt||!bt.animate)return;
@@ -714,8 +679,7 @@ function start(){const t=$('#txt').value;if(!st.autoOn)st.text=t;opt.hide=+$('#o
  if(!list.length){const ar=(t.match(/[\u0600-\u06FF]/g)||[]).length,la=(t.match(/[A-Za-z]/g)||[]).length;toast(ar>la?'القصة لازم تكون بالإنجليزية. الصق نصًا إنجليزيًا أو اختر «تلقائي».':'ما لقيت نصًا إنجليزيًا للتدرّب عليه. الصق قصة أو ارفع ملف PDF.');return}
  if(opt.n>0)list=list.slice(0,opt.n);
  st.test=0;begin('s',list)}
-function saveResume(){if(st.mode!=='s'||st.test)return;try{const j=JSON.stringify({items:st.items.map(x=>({s:x.s,o:x.o})),idx:st.idx,t:Date.now()});if(j.length<250000)localStorage.setItem('typing_resume',j)}catch{}}
-function begin(mode,items,at){nav('play');Object.assign(st,{mode,items,idx:at||0,keys:0,hit:0,ok:0,t0:0,act:0,it0:0,res:[],nt:0,nw:0,wrong:new Map(),hide:mode==='s'&&opt.hide?1:0});
+function begin(mode,items){nav('play');Object.assign(st,{mode,items,idx:0,keys:0,hit:0,ok:0,t0:0,act:0,it0:0,res:[],nt:0,nw:0,wrong:new Map(),hide:mode==='s'&&opt.hide?1:0});
  if(st.hide&&(aud.sm||aud.sv<=0))toast('وضع الإملاء يحتاج صوت الكلام. فعّله من الأيقونة في الأعلى.');item()}
 /* typing */
 const mk=(t,c)=>t.split(' ').map(w=>`<span class="wd">${[...w].map(x=>`<span class="c ${c}">${esc(x)}</span>`).join('')}</span>`).join('<span class="c sp"> </span>');
@@ -723,7 +687,7 @@ function blank(it){let d=0;const h=(it.sent||'').split(' ').filter(Boolean).map(
 const same=it=>st.view==='play'&&st.items[st.idx]===it;
 const say=it=>it.o||it.s;
 const loadTr=it=>{const el=$('#ar');if(!el)return;tr(say(it)).then(t=>{if(!same(it)||!$('#ar'))return;el.textContent=t;el.style.cursor=t==='—'?'pointer':'';el.onclick=t==='—'?()=>{el.textContent='…';loadTr(it)}:null})};
-function item0(){if(st.idx>=st.items.length)return results();const it=st.items[st.idx];saveResume();st.pos=0;st.typed=[];st.iw=new Set();st.shown=0;st.locked=false;st.ik=0;st.ih=0;st.it0=0;st.target=st.mode==='w'?it.w:it.s;
+function item0(){if(st.idx>=st.items.length)return results();const it=st.items[st.idx];st.pos=0;st.typed=[];st.iw=new Set();st.shown=0;st.locked=false;st.ik=0;st.ih=0;st.it0=0;st.target=st.mode==='w'?it.w:it.s;
  $('#prog').textContent=`${st.idx+1}/${st.items.length}`;
  const pb=`<div class="pbar"><i style="width:${st.idx/st.items.length*100}%"></i></div>`,sb='<div class="stats" dir="ltr"><b id="wpm">0</b> WPM &nbsp;|&nbsp; <b id="acc">100%</b> ACC</div>';
  if(st.mode==='s'){M.innerHTML=`<section class="pane">${pb}<div class="tgt" dir="ltr" lang="en">${mk(it.s,st.hide?'hid':'ghost')}</div>${st.hide?'<p class="say">اكتب ما تسمعه. اضغط <kbd>Tab</kbd> لإظهار الجملة.</p>':''}${opt.tr?'<div class="ar" id="ar">…</div>':''}${sb}<div class="keyh">اضغط <kbd>\\</kbd> للاستماع · <kbd>Esc</kbd> للخروج</div></section>`;
@@ -761,8 +725,7 @@ addEventListener('resize',()=>st.view==='play'&&setCur(1));
 function hint(one){if(st.locked)return;noteWrong(st.mode==='s'?Math.min(st.pos,st.target.length-1):0);const cs=chars();for(let i=st.pos;i<cs.length;i++)if(cs[i].classList.contains('hid')){cs[i].classList.replace('hid','ghost');if(one)break}}
 function toggleAns(){if(st.locked)return;const b=$('#hb2'),L=st.mode==='s'?['أظهر الجملة','أخفِ الجملة']:['أظهر الإجابة','أخفِ الإجابة'];if(st.shown){chars().forEach((c,i)=>i>=st.pos&&c.classList.replace('ghost','hid'));st.shown=0}else{hint(0);st.shown=1}b&&(b.lastChild.textContent=L[st.shown])}
 function back(){if(!st.pos)return;const i=--st.pos,el=chars()[i],was=el.classList.contains('ok');st.typed.pop();if(was)st.ok--;el.classList.remove('ok','bad');el.style.display=el.style.width='';el.textContent=st.target[i];stats();setCur()}
-addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('#gate'))return;if(e.target.closest&&e.target.closest('#acct')){if(e.key==='Escape')$('#acct').hidden=true;return}
- if(e.key==='Escape'&&st.view==='play'){e.preventDefault();home();return}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&st.view==='play'){e.preventDefault();home();return}
  if(st.view!=='play'||st.locked)return;
  if(e.key==='Backspace'){e.preventDefault();back();return}
  if(e.key==='\\'){e.preventDefault();const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):say(it));return}
@@ -770,7 +733,7 @@ addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('#gate'))re
  if(e.key.length!==1||e.ctrlKey||e.metaKey||e.altKey)return;e.preventDefault();press(e.key)});
 /* results */
 const fmt=ms=>{const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
-function results(){nav('results');try{localStorage.setItem('typing_resume','')}catch{}sfx.done();
+function results(){nav('results');sfx.done();
  const acc=st.keys?Math.round(st.hit/st.keys*100):100,wpm=st.act>0?Math.round(st.ok/5/(st.act/60000)):0,ws=[...st.wrong.values()],done=st.res.filter(r=>!r.skip);
  const H=LS.get('typing_hist',[]),prev=H.reduce((m,x)=>Math.max(m,x.wpm||0),0),rec=prev>0&&wpm>prev&&st.keys>=20;
  if(st.keys>=20&&wpm>0){H.push({d:Date.now(),wpm,acc,n:done.length,m:st.mode+(st.hide?'d':'')});LS.set('typing_hist',H.slice(-60))}
@@ -891,65 +854,6 @@ Object.assign(SV,{venus:'<circle cx="12" cy="9" r="5"/><path d="M12 14v8M8.5 18h
 
 home();
 
-/* ---- account + sync (Firebase Auth + Firestore). Fill FIREBASE_CONFIG to turn it on. ---- */
-const FIREBASE_CONFIG={apiKey:'AIzaSyC0XlYNQWeNloLpmBBLJ1ehKLkk2Oqrwgo',authDomain:'writemax-b40f6.firebaseapp.com',projectId:'writemax-b40f6',storageBucket:'writemax-b40f6.firebasestorage.app',messagingSenderId:'808078851437',appId:'1:808078851437:web:54792ce6ea19a806356e64'};
-{
- const KEYS=['typing_saved','typing_trash','typing_hist','typing_opts','typing_audio','typing_voice','typing_resume'];
- const CDN='https://www.gstatic.com/firebasejs/10.12.2/',ready=!!(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.projectId);
- const si=Storage.prototype.setItem,L=localStorage;let fb=null,user=null,pt=0,mode='in',msg='',good=0,loading=null;
- const tnow=()=>+L.getItem('wm_local_t')||0,stamp=t=>si.call(L,'wm_local_t',String(t));
- const schedule=()=>{clearTimeout(pt);if(user)pt=setTimeout(push,3000)};
- Storage.prototype.setItem=function(k,v){si.call(this,k,v);if(this===L&&KEYS.includes(k)){stamp(Date.now());schedule()}};
- const snap=()=>{const o={};KEYS.forEach(k=>{const v=L.getItem(k);if(v!=null)o[k]=v});return o};
- const load=()=>loading||(loading=(async()=>{const[a,au,fs]=await Promise.all([import(CDN+'firebase-app.js'),import(CDN+'firebase-auth.js'),import(CDN+'firebase-firestore.js')]);const app=a.initializeApp(FIREBASE_CONFIG);fb={au,fs,auth:au.getAuth(app),db:fs.getFirestore(app)};fb.au.onAuthStateChanged(fb.auth,onUser);return fb})().catch(e=>{loading=null;throw e}));
- const ref=()=>fb.fs.doc(fb.db,'users',user.uid);
- async function push(){if(!user||!fb)return false;try{if(!tnow())stamp(Date.now());await fb.fs.setDoc(ref(),{data:snap(),t:tnow()});si.call(L,'wm_last_sync',String(Date.now()));paint();return true}catch(e){console.warn('sync push',e);return false}}
- const J=(o,k)=>{try{return JSON.parse(o[k]||'null')}catch{return null}};
- function merge(cd){const out={...cd},sv={...(J(cd,'typing_saved')||{}),...dict(LS.get('typing_saved',{}))},tr={...(J(cd,'typing_trash')||{}),...dict(LS.get('typing_trash',{}))};
-  Object.keys(sv).forEach(k=>delete tr[k]);
-  const hm=new Map();[...(J(cd,'typing_hist')||[]),...LS.get('typing_hist',[])].forEach(x=>x&&hm.set(x.d,x));
-  out.typing_saved=JSON.stringify(sv);out.typing_trash=JSON.stringify(tr);out.typing_hist=JSON.stringify([...hm.values()].sort((a,b)=>a.d-b.d).slice(-60));
-  KEYS.forEach(k=>{if(out[k]==null&&L.getItem(k)!=null)out[k]=L.getItem(k)});return out}
- const apply=(d,t)=>{KEYS.forEach(k=>{if(d[k]!=null)si.call(L,k,d[k])});stamp(t)};
- async function sync(){
-  const d=await fb.fs.getDoc(ref()),linked=L.getItem('wm_uid')===user.uid;si.call(L,'wm_uid',user.uid);
-  const hasLocal=Object.keys(dict(LS.get('typing_saved',{}))).length||LS.get('typing_hist',[]).length;
-  if(!d.exists()){await push();return}
-  const c=d.data(),cd=c.data||{};
-  if(linked||!hasLocal){if((c.t||0)>tnow()){apply(cd,c.t);location.reload();return}await push();return}
-  apply(merge(cd),Date.now());await push();location.reload()}
- async function onUser(u){user=u;$('#bacc').classList.toggle('on',!!u);msg='';if(u){si.call(L,'wm_uid',u.uid);hideGate();try{await sync()}catch(e){console.warn('sync',e)}}else showGate();paint()}
- const ERR={'auth/invalid-credential':'الإيميل أو كلمة السر غير صحيحة','auth/wrong-password':'الإيميل أو كلمة السر غير صحيحة','auth/user-not-found':'ما فيه حساب بهذا الإيميل','auth/email-already-in-use':'هذا الإيميل مسجّل من قبل، سجّل دخولك','auth/weak-password':'كلمة السر لازم تكون 6 أحرف على الأقل','auth/invalid-email':'الإيميل غير صحيح','auth/missing-password':'اكتب كلمة السر','auth/too-many-requests':'محاولات كثيرة، جرّب بعد قليل','auth/network-request-failed':'تعذّر الاتصال، تأكد من الإنترنت','auth/unauthorized-domain':'هذا الدومين غير مضاف في إعدادات Firebase'};
- const fail=e=>{if(e&&(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'))return;msg=ERR[e&&e.code]||'صار خطأ، جرّب مرة ثانية';good=0;paint()};
- const ago=t=>{const m=Math.round((Date.now()-t)/60000);return m<1?'الآن':m===1?'قبل دقيقة':m===2?'قبل دقيقتين':m<=10?'قبل '+m+' دقائق':m<60?'قبل '+m+' دقيقة':m<120?'قبل ساعة':m<1440?'قبل '+Math.round(m/60)+' ساعات':'قبل '+Math.round(m/1440)+' يومًا'};
- const G='<svg viewBox="0 0 48 48" width="18" height="18"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.7-.4-3.9z"/></svg>';
- const box=document.createElement('div');box.id='acct';box.hidden=true;box.setAttribute('role','dialog');box.setAttribute('aria-label','الحساب');document.body.appendChild(box);
- let gate=null;
- const lock=on=>['header','#main'].forEach(q=>{const e=document.querySelector(q);if(e)e.inert=on});
- function showGate(){if(gate)return;box.hidden=true;gate=document.createElement('div');gate.id='gate';gate.setAttribute('role','dialog');gate.setAttribute('aria-modal','true');gate.setAttribute('aria-label','تسجيل الدخول');document.body.appendChild(gate);lock(true);paintGate()}
- function hideGate(){if(!gate)return;gate.remove();gate=null;lock(false)}
- const paint=()=>{if(gate)paintGate();if(user&&!box.hidden)paintAcct()};
- function paintGate(){
-  if(!gate)return;const o=gate.querySelector('#ae'),v=o?o.value:'';
-  gate.innerHTML=`<div class="gc"><div class="gl">WriteMax</div><h2>${mode==='up'?'إنشاء حساب جديد':'سجّل دخولك للمتابعة'}</h2><p>حسابك يحفظ كلماتك وتقدّمك، وتكمل من حيث وقفت على أي جهاز.</p><div class="col"><button class="wide" id="ag">${G}<span>المتابعة مع Google</span></button><div class="or">أو بالإيميل</div><input id="ae" type="email" placeholder="الإيميل" autocomplete="email" inputmode="email"><input id="ap" type="password" placeholder="كلمة السر" autocomplete="${mode==='up'?'new-password':'current-password'}"><div class="err${good?' good':''}" id="aerr" role="alert">${esc(msg)}</div><button class="wide pri" id="ago">${mode==='up'?'إنشاء حساب':'تسجيل الدخول'}</button><div class="alt"><button class="lnk" id="asw">${mode==='up'?'عندي حساب؟ سجّل دخولك':'ما عندك حساب؟ أنشئ حساب'}</button><button class="lnk" id="afg">نسيت كلمة السر</button></div></div></div>`;
-  if(v)gate.querySelector('#ae').value=v;
-  const q=s=>gate.querySelector(s);
-  q('#ag').onclick=async()=>{msg='';try{await load();const P=new fb.au.GoogleAuthProvider();try{await fb.au.signInWithPopup(fb.auth,P)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')await fb.au.signInWithRedirect(fb.auth,P);else throw e}}catch(e){fail(e)}};
-  const go=async()=>{const em=q('#ae').value.trim(),pw=q('#ap').value;if(!em||!pw){msg='اكتب الإيميل وكلمة السر';good=0;paint();return}q('#ago').disabled=true;try{await load();await(mode==='up'?fb.au.createUserWithEmailAndPassword:fb.au.signInWithEmailAndPassword)(fb.auth,em,pw)}catch(e){fail(e)}};
-  q('#ago').onclick=go;[q('#ae'),q('#ap')].forEach(i=>i.onkeydown=e=>{if(e.key==='Enter')go()});
-  q('#asw').onclick=()=>{mode=mode==='up'?'in':'up';msg='';paint()};
-  q('#afg').onclick=async()=>{const em=q('#ae').value.trim();if(!em){msg='اكتب إيميلك أولًا ثم اضغط «نسيت كلمة السر»';good=0;paint();return}try{await load();await fb.au.sendPasswordResetEmail(fb.auth,em);msg='أرسلنا لك رابط إعادة تعيين كلمة السر';good=1;paint()}catch(e){fail(e)}}}
- function paintAcct(){
-  if(!user)return;const nm=user.displayName||user.email||'',ls=+L.getItem('wm_last_sync')||0;
-  box.innerHTML=`<div class="ph"><b>حسابي</b><button class="ib" id="ax" aria-label="إغلاق">×</button></div><div class="me"><span class="av">${esc((nm[0]||'?').toUpperCase())}</span><div><b>${esc(user.displayName||'حسابي')}</b><small>${esc(user.email||'')}</small></div></div><p>تتم مزامنة تقدّمك وكلماتك تلقائيًا، وتقدر تكمل من حيث وقفت على أي جهاز.${ls?'<br>آخر مزامنة: '+ago(ls):''}</p><div class="col"><button class="wide" id="asy">مزامنة الآن</button><button class="wide" id="aso">تسجيل الخروج</button></div>`;
-  const q=s=>box.querySelector(s);q('#ax').onclick=()=>box.hidden=true;
-  q('#asy').onclick=async()=>{q('#asy').textContent='جاري المزامنة…';await push();try{await sync()}catch{}paintAcct()};
-  q('#aso').onclick=async()=>{clearTimeout(pt);q('#aso').disabled=true;if(!await push()){toast('تعذّرت المزامنة قبل الخروج. تأكد من الإنترنت وجرّب مرة ثانية');paintAcct();return}try{await fb.au.signOut(fb.auth)}catch{}['wm_uid','wm_local_t','wm_last_sync',...KEYS].forEach(k=>L.removeItem(k));location.reload()}}
- $('#bacc').onclick=e=>{e.stopPropagation();e.currentTarget.blur();if(!ready){toast('تسجيل الدخول غير مفعّل بعد');return}if(!user)return;const p=document.getElementById('pop');p&&(p.hidden=true);box.hidden=!box.hidden;if(!box.hidden)paintAcct()};
- document.addEventListener('click',e=>{if(!box.hidden&&!box.contains(e.target)&&!e.target.closest('#bacc'))box.hidden=true},true);
- addEventListener('visibilitychange',()=>{if(document.hidden&&user)push()});
- if(ready){const known=!!L.getItem('wm_uid');if(!known)showGate();load().catch(()=>{if(known)hideGate();else{msg='تعذّر الاتصال بالخدمة. تأكد من الإنترنت ثم حدّث الصفحة';good=0;paint()}})}
-}
 </script>
 </body>
 </html>
