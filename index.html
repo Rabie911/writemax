@@ -658,7 +658,7 @@ function item0(){if(st.idx>=st.items.length)return results();const it=st.items[s
  $('#prog').textContent=`${st.idx+1}/${st.items.length}`;
  const pb=`<div class="pbar"><i style="width:${st.idx/st.items.length*100}%"></i></div>`,sb='<div class="stats" dir="ltr"><b id="wpm">0</b> WPM &nbsp;|&nbsp; <b id="acc">100%</b> ACC</div>';
  if(st.mode==='s'){M.innerHTML=`<section class="pane">${pb}<div class="tgt" dir="ltr" lang="en">${mk(it.s,st.hide?'hid':'ghost')}</div>${st.hide?'<p class="say">اكتب ما تسمعه. اضغط <kbd>Tab</kbd> لإظهار الجملة.</p>':''}${opt.tr?'<div class="ar" id="ar">…</div>':''}${sb}<div class="keyh">اضغط <kbd>\\</kbd> للاستماع · <kbd>Esc</kbd> للخروج</div></section>`;
-  speak(say(it));if(opt.tr){wtPre(it.s);loadTr(it);for(let k=1;k<=2;k++){const nx=st.items[st.idx+k];nx&&setTimeout(()=>{tr(say(nx));wtPre(nx.s)},400*k)}}setCur()}
+  speak(say(it));if(opt.tr){loadTr(it);wtPre(it);for(let k=1;k<=2;k++){const nx=st.items[st.idx+k];nx&&setTimeout(()=>{tr(say(nx))},400*k)}}setCur()}
  else{M.innerHTML=`<section class="pane center">${pb}<h2 id="a1">…</h2><p class="ar" id="a2"></p><p class="en" id="a3" dir="ltr" lang="en"></p><div class="vl"></div><p class="sent" dir="ltr" lang="en">${blank(it)}</p>${st.test?`<div class="row" style="margin-top:22px"><button id="hb1">${I('target')}Hint</button><button id="hb2">${I('book')}أظهر الإجابة</button></div>`:''}<div class="keyh"><kbd>Tab</kbd> تلميح · <kbd>\\</kbd> للاستماع · <kbd>Esc</kbd> للخروج</div>${sb}</section>`;
   (async()=>{const ar=it.ar||await tr(it.w);if(!same(it))return;$('#a1').textContent=ar;const d=await def(it.w);if(!same(it))return;$('#a3').textContent=d;const da=d?await tr(d):'';same(it)&&($('#a2').textContent=da)})();setCur();
   if(st.test){$('#hb1').onclick=e=>{e.currentTarget.blur();hint(1)};$('#hb2').onclick=e=>{e.currentTarget.blur();toggleAns()}}}
@@ -722,7 +722,38 @@ function wtCtx(t,i){
 const stripSub=s=>String(s).replace(/^(?:\u0644\u0642\u062f\s+)?(?:\u0647\u0648|\u0647\u064a|\u0647\u0645|\u0647\u0646|\u0646\u062d\u0646|\u0623\u0646\u0627|\u0627\u0646\u0627|\u0623\u0646\u062a|\u0627\u0646\u062a|\u0623\u0646\u062a\u0645|\u0625\u0646\u0647|\u0625\u0646\u0647\u0627)\s+/,'').replace(/[.\u3002]+$/,'').trim();
 async function trc(c){if(tc[c.k])return tc[c.k];const r=await tr(c.q);let t=r&&r!=='\u2014'?stripSub(r):'';
  if(!t||/[A-Za-z]/.test(t))return tr(c.w);tc[c.k]=t;flush();return t}
-const wtPre=s=>{const t=String(s).split(' '),seen=new Set();t.forEach((x,i)=>{const w=wtClean(x);if(!w)return;const c=wtCtx(t,i),k=c?c.k:w;if(tc[k]||seen.has(k))return;seen.add(k);c?trc(c):tr(w)})};
+/* ===== ترجمة الكلمة من سياق الجملة (نفس الترجمة الظاهرة تحت) ===== */
+const cw=dict(LS.get('typing_wctx',{}));let _fw;
+const flushW=()=>{clearTimeout(_fw);_fw=setTimeout(()=>{const k=Object.keys(cw);if(k.length>800)k.slice(0,k.length-800).forEach(x=>delete cw[x]);LS.set('typing_wctx',cw)},900)};
+const gtx=(q,dt)=>net('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&'+dt+'&ie=UTF-8&oe=UTF-8&q='+encodeURIComponent(q)).then(r=>r.json());
+const wtN=x=>String(x).replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[^\u0621-\u064A\s]/g,' ').trim();
+const wtStem=x=>x.replace(/^(?:وال|فال|بال|كال|لل|ال|و|ف|ب|ل|ك)(?=.{2,})/,'');
+const wtSet=full=>new Set(wtN(full).split(/\s+/).filter(Boolean).map(wtStem));
+const wtIn=(a,set)=>{const ws=wtN(a).split(/\s+/).filter(Boolean);return ws.length>0&&ws.length<=4&&ws.every(x=>set.has(wtStem(x)))};
+const wtAltC=new Map();
+async function wtAlts(w){const l=w.toLowerCase();if(wtAltC.has(l))return wtAltC.get(l);let a=[],ok=0;
+ try{const j=await gtx(w,'dt=t&dt=bd');const main=(j[0]||[]).map(x=>x&&x[0]||'').join('').trim();a=[main,...((j[1]||[]).flatMap(x=>x&&x[1]||[]))].filter(Boolean);ok=1}catch{}
+ ok&&wtAltC.set(l,a);return a}
+async function wtMark(t,i){
+ const q=t.map((x,j)=>j===i?'['+x+']':x).join(' ');
+ try{const j=await gtx(q,'dt=t'),r=(j[0]||[]).map(x=>x&&x[0]||'').join('');
+  const m=r.match(/\[\s*([^\[\]]+?)\s*\]/)||r.match(/\]\s*([^\[\]]+?)\s*\[/);
+  const v=m?m[1].trim():'';return v&&!/[A-Za-z]/.test(v)&&v.split(/\s+/).length<=4?v:''}catch{return''}}
+async function wtCw0(it,i,k){
+ const t=it.s.split(' '),w=wtClean(t[i]);if(!w)return'';
+ const full=await tr(say(it)),set=wtSet(full==='—'?'':full);
+ const done=v=>{cw[k]=v;flushW();return v};
+ const m=await wtMark(t,i);
+ if(m&&wtIn(m,set))return done(m);
+ const alts=await wtAlts(w),hit=alts.find(a=>wtIn(a,set));
+ if(hit)return done(hit);
+ if(m)return done(m);
+ const p=await tr(w);return p&&p!=='—'?done(p):''}
+const wtInf=new Map();
+const wtCw=(it,i)=>{const k=it.s+'#'+i;if(cw[k])return Promise.resolve(cw[k]);let p=wtInf.get(k);
+ if(!p){p=wtCw0(it,i,k).finally(()=>wtInf.delete(k));wtInf.set(k,p)}return p};
+const wtPre=it=>{if(!it||!it.s)return;const n=it.s.split(' ').length;let i=0;
+ const run=async()=>{while(i<n&&same(it)){const k=i++;if(!wtClean(it.s.split(' ')[k]))continue;try{await wtCw(it,k)}catch{}}};run();run()};
 function wtHide(){wt.el=null;wt.key='';wt.seq++;wt.tip&&wt.tip.classList.remove('on')}
 function wtPlace(){const tip=wt.tip,el=wt.el;if(!tip||!el||!el.isConnected)return;const r=el.getBoundingClientRect(),w=tip.offsetWidth||80,cx=r.left+r.width/2,x=Math.min(Math.max(cx,w/2+10),innerWidth-w/2-10),below=r.top<64;
  tip.classList.toggle('below',below);tip.style.left=x+'px';tip.style.top=(below?r.bottom+12:r.top-12)+'px';tip.style.setProperty('--ax',(cx-x)+'px')}
@@ -733,15 +764,15 @@ function wtSync(force){
  if(!el&&!matchMedia("(hover:hover)").matches&&st.pos<st.target.length)el=words[st.target.slice(0,st.pos).split(' ').length-1]||null;
  if(!el){wtHide();return}
  const tk=st.target.split(' '),ei=words.indexOf(el),w=wtClean(tk[ei]);if(!w){wtHide();return}
- const cx=wtCtx(tk,ei),ck=cx?cx.k:w;
- const key=words.indexOf(el)+':'+w+':'+st.idx;
+  const key=words.indexOf(el)+':'+w+':'+st.idx;
  if(wt.el===el&&wt.key===key){force&&wtPlace();return}
  const tip=wtTip(),tb=tip.firstChild,sq=++wt.seq;wt.el=el;wt.key=key;
  const fx=t=>String(t).replace(/[.\u3002]+$/,'').trim();
  const put=t=>{tb.firstChild.textContent=t;tb.classList.remove('sw');void tb.offsetWidth;tb.classList.add('sw');
   if(!tip.classList.contains('on')){tip.classList.add('nt');wtPlace();void tip.offsetWidth;tip.classList.remove('nt');tip.classList.add('on')}else wtPlace()};
- if(tc[ck]&&tc[ck]!=='\u2014')put(fx(tc[ck]));
- else{put('\u2026');(cx?trc(cx):tr(w)).then(t=>{if(sq!==wt.seq)return;if(!t||t==='\u2014'){wtHide();return}put(fx(t))})}}
+ const it=st.items[st.idx],ck=it.s+'#'+ei;
+ if(cw[ck])put(fx(cw[ck]));
+ else{put('\u2026');wtCw(it,ei).then(t=>{if(sq!==wt.seq)return;if(!t){wtHide();return}put(fx(t))}).catch(()=>{if(sq===wt.seq)wtHide()})}}
 document.addEventListener('mouseover',e=>{const d=e.target.closest&&e.target.closest('.tgt .wd');clearTimeout(wt.t);
  if(d){wt.hover=d;wtSync()}else if(wt.hover)wt.t=setTimeout(()=>{wt.hover=null;wtSync()},140)});
 document.addEventListener('click',e=>{const d=e.target.closest&&e.target.closest('.tgt .wd');if(!d||st.view!=='play'||st.mode!=='s'||st.hide)return;
