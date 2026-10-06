@@ -14,6 +14,25 @@
 :root{--bg:#04050b;--fg:#eef0ff;--mut:#9aa0c6;--ok:#7fd39a;--bad:#ef6b6e;--acc:#7c8cff;--bd:rgba(255,255,255,.14);
 --fl:"Inter","IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;--fd:"Sora","Inter","IBM Plex Sans Arabic",system-ui,sans-serif}
 *{box-sizing:border-box}
+/* themed glass scrollbar */
+*{scrollbar-width:thin;scrollbar-color:rgba(150,170,255,.38) transparent}
+::-webkit-scrollbar{width:12px;height:12px;background:transparent}
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-button{display:none;width:0;height:0}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border:1px solid rgba(160,180,255,.38);border-radius:999px;background-clip:padding-box;box-shadow:inset 0 0 6px rgba(120,150,255,.25);transition:.2s}
+::-webkit-scrollbar-thumb:hover{background:rgba(124,140,255,.28);border-color:rgba(190,205,255,.65);box-shadow:inset 0 0 8px rgba(140,165,255,.5),0 0 10px rgba(110,140,255,.4)}
+/* animated fire streak */
+.fire{position:relative;display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;flex:none;margin-inline-start:-.1em}
+.fire::before{content:"";position:absolute;inset:-.1em;border-radius:50%;background:radial-gradient(circle,rgba(255,150,40,.55),rgba(255,90,20,.18) 55%,transparent 72%);filter:blur(5px);animation:fglow 1.7s ease-in-out infinite}
+.fire b{position:relative;margin:0;font-size:1.35em;line-height:1;transform-origin:50% 90%;animation:fflame 1.5s ease-in-out infinite;filter:drop-shadow(0 0 5px rgba(255,120,30,.85))}
+.fire i{position:absolute;bottom:55%;left:50%;width:3px;height:3px;border-radius:50%;background:#ffc46b;box-shadow:0 0 6px 1px #ff8a2a;opacity:0;animation:fember 2.1s ease-out infinite}
+.fire i:nth-child(3){--dx:-9px;animation-delay:.7s;width:2px;height:2px}
+.fire i:nth-child(4){--dx:8px;animation-delay:1.4s}
+.fire i:nth-child(2){--dx:0px}
+@keyframes fflame{0%,100%{transform:scale(1) rotate(-2deg) skewX(0)}20%{transform:scale(1.08,1.14) rotate(2.5deg) skewX(-3deg)}45%{transform:scale(.96,1.05) rotate(-3deg) skewX(2deg)}70%{transform:scale(1.06,1.12) rotate(2deg) skewX(-2deg)}}
+@keyframes fglow{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.18)}}
+@keyframes fember{0%{opacity:0;transform:translate(0,4px) scale(1)}15%{opacity:.95}100%{opacity:0;transform:translate(var(--dx,0),-20px) scale(.2)}}
+.chip:hover .fire b{animation-duration:.7s}
 html,body{height:var(--vh,100%);width:100%;margin:0;overflow:hidden;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--fg);font-family:var(--fl);display:flex;flex-direction:column}
 body::before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(40% 35% at 20% 25%,rgba(59,108,255,.38),transparent 70%),radial-gradient(38% 35% at 80% 30%,rgba(155,92,255,.34),transparent 70%),radial-gradient(45% 40% at 55% 85%,rgba(40,80,220,.3),transparent 70%);filter:blur(30px);animation:drift 18s ease-in-out infinite alternate}
@@ -294,7 +313,7 @@ function speak(t){try{clearTimeout(_spT);speechSynthesis.cancel();if(aud.sm||aud
 const VF=/aria|jenny|sonia|libby|maisie|michelle|emma|amy|\bava\b|allison|samantha|serena|karen|moira|tessa|zira|susan|hazel|female|victoria|kate|fiona|joanna|salli|kimberly|ivy|nova|shimmer|natasha|clara|olivia|lucy|catherine|linda|sara|laura|heather|ruth|stephanie|kendra|emily|google us english/i;
 const VM=/guy|davis|ryan|christopher|eric|roger|steffan|brian|mark|david|james|george|daniel|alex|aaron|fred|thomas|oliver|arthur|\bmale\b|rishi|gordon|matthew|joey|justin|kevin|russell|liam|jason|tony/i;
 const VBAD=/albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|junior|organ|trinoids|whisper|zarvox|superstar|wobble|jester|grandma|grandpa/i;
-let vg='f';try{const x=localStorage.getItem('typing_voice');vg=(x==='m'||x==='g'||x==='h')?x:'f'}catch{}
+let vg='m';try{const x=localStorage.getItem('typing_voice');vg=(x==='f'||x==='m'||x==='g'||x==='h')?x:'m'}catch{}
 const vq=v=>(/natural|neural|online|premium|enhanced|siri/i.test(v.name)?100:0)+(/google/i.test(v.name)?40:0)+(/en[-_]US/i.test(v.lang)?6:/en[-_]GB/i.test(v.lang)?4:0)+(v.localService?1:0);
 function voiceFor(g){let vs=[];try{vs=speechSynthesis.getVoices()}catch{}vs=vs.filter(v=>/^en/i.test(v.lang)&&!VBAD.test(v.name));
  const F=vs.filter(v=>VF.test(v.name)&&!/\bmale\b/i.test(v.name)&&!VM.test(v.name)).sort((a,b)=>vq(b)-vq(a));
@@ -596,7 +615,7 @@ function streak(h){const s=new Set(h.map(x=>dkey(x.d)));let n=0;const d=new Date
 const dayAr=n=>n===1?'يوم واحد':n===2?'يومان':n<=10?n+' أيام':n+' يومًا';
 function home(){const wasHome=st.view==='home'&&!brandFirst;nav('home');const h=LS.get('typing_hist',[]),sk=streak(h),best=h.reduce((m,x)=>Math.max(m,x.wpm||0),0);
  const sv=Object.values(saved),sub={train:sv.filter(x=>!x.s).length+' كلمة',new:'قصة بالإنجليزية',review:sv.filter(x=>x.s).length+' كلمة'};
- const chips=h.length?`<div class="strip">${sk?`<span class="chip">${I('flame')}<span>سلسلة<b>${dayAr(sk)}</b></span></span>`:''}<span class="chip">${I('bolt')}<span>أفضل سرعة<b>${best}</b>WPM</span></span><span class="chip">${I('target')}<span>الجلسات<b>${h.length}</b></span></span></div>`:'';
+ const chips=h.length?`<div class="strip">${sk?`<span class="chip"><span class="fire" aria-hidden="true"><i></i><i></i><i></i><b>🔥</b></span><span>سلسلة<b>${dayAr(sk)}</b></span></span>`:''}<span class="chip">${I('bolt')}<span>أفضل سرعة<b>${best}</b>WPM</span></span><span class="chip">${I('target')}<span>الجلسات<b>${h.length}</b></span></span></div>`:'';
  M.innerHTML=`<div class="home2"><div class="brand">${neon(STAR)}<span class=\"bt\">WriteMax</span></div><h1>Type Beyond<br><span>The Story</span></h1><p>اختر ما تريد وابدأ الكتابة من قصصك</p><div class="lvls">${LV.map(([m,t,sh])=>`<button class="lvl" data-m="${m}"><i></i><i></i><i></i><i></i><i></i>${neon(sh)}<b>${t}</b><small>${sub[m]}</small></button>`).join('')}</div>${chips}</div>`;
  document.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>{const a=b.dataset.m;if(a==='train')return testList(0);if(a==='review')return testList(1);$('.home2').classList.add('out');setTimeout(()=>step(),350)});if(!wasHome)brandAnim();brandFirst=false}
 let brandFirst=true;
