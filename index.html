@@ -259,6 +259,7 @@ button::after{background:radial-gradient(circle var(--gr,60px) at var(--mx) var(
 .brand .bt em{position:absolute;left:0;top:0;transform:translate(-50%,-50%);border-radius:99px;pointer-events:none;opacity:0;will-change:left,top,width,height}
 body.on-home header .bar{display:none}body.on-home header .side.end{grid-column:3}
 .tabs button.sel{background:linear-gradient(135deg,#6a5cff,#9b6bff)!important;color:#fff;border:0}
+.imm{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(2,3,10,.72);backdrop-filter:blur(6px);padding:16px}.imm>.glass{position:relative;width:min(560px,100%);max-height:92vh;overflow:auto;border-radius:24px;padding:20px;background:rgba(14,18,48,.92)}.imm textarea{height:150px;border:1px solid var(--bd);background:rgba(255,255,255,.05);margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -814,9 +815,39 @@ async function importData(f){try{const o=JSON.parse(await f.text());let n=0;cons
   const H=LS.get('typing_hist',[]),have=new Set(H.map(x=>x.d));(Array.isArray(o.hist)?o.hist:[]).forEach(x=>{if(x&&Number.isFinite(+x.d)&&!have.has(+x.d)){H.push({d:+x.d,wpm:+x.wpm||0,acc:+x.acc||0,n:+x.n||0,m:String(x.m||'s').slice(0,3)})}});H.sort((a,b)=>a.d-b.d);LS.set('typing_hist',H.slice(-60));
   DB.set(saved);TR.set(trash);toast(n?`تم استيراد ${n} كلمة.`:'ما في كلمات جديدة للاستيراد.');savedView()}
  catch{toast('تعذّرت قراءة الملف. اختر ملف نسخة احتياطية من WriteMax بصيغة JSON.')}}
+const STOP=new Set('the and for that with this from have are was were but not you all can has had his her its our their they them then than there here what when where which who will would could should into about over been being also just very more some such only your out one two'.split(' '));
+function parseWords(t){
+ const lat=/^[A-Za-z][A-Za-z'’-]*(?: [A-Za-z][A-Za-z'’-]*){0,3}$/,SEP=/\t|\s[-–—:=|>]+\s|\s*(?:->|=>|→|:|=|\||;)\s*|\s{3,}| (?=[\u0600-\u06FF])|\s*[(\[]/;
+ const L=t.replace(/\r/g,'').replace(/\u00a0/g,' ').split('\n').map(x=>x.replace(/^\s*(?:[•·▪●*]|[-–—]|\(?\d{1,4}[.)\]:-])\s+/,'').trim()).filter(Boolean);
+ const sep=L.filter(l=>SEP.test(l)).length>L.length*.5,prose=!sep&&L.some(l=>l.split(' ').length>6&&/[.!?]/.test(l)),out=[],seen=new Set();
+ const add=w=>{w=w.replace(/^[^A-Za-z]+|[^A-Za-z]+$/g,'').trim();if(w.length<2||!lat.test(w))return;if(/^[A-Z][a-z'’-]+(?: [a-z'’-]+)*$/.test(w))w=w.toLowerCase();const k=w.toLowerCase();if(!seen.has(k)){seen.add(k);out.push(w)}};
+ if(!prose)for(const l of L){
+  const m=SEP.exec(l);
+  if(m){const h=l.slice(0,m.index).trim();if(lat.test(h))add(h);else if(/^[^A-Za-z]/.test(l)){const r=/[A-Za-z][A-Za-z'’ -]*[A-Za-z]/.exec(l);r&&add(r[0])}continue}
+  if(l.includes(',')){const p=l.split(/\s*,\s*/);if(p.every(x=>lat.test(x)&&x.split(' ').length<3))p.forEach(add);else if(lat.test(p[0]))add(p[0]);continue}
+  if(lat.test(l)&&l.split(' ').length<=(sep?2:4))add(l)}
+ if(prose||!out.length){out.length=0;seen.clear();(t.match(/[A-Za-z][A-Za-z'’-]{2,}/g)||[]).forEach(w=>{if(!STOP.has(w.toLowerCase()))add(w)})}
+ return out}
+async function pdfRaw(f){try{await loadPdf()}catch{}if(!window.pdfjsLib)throw 0;const w=await (await fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')).text();pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([w],{type:'text/javascript'}));const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,pg=[];for(let p=1;p<=d.numPages;p++)pg.push((await (await d.getPage(p)).getTextContent()).items);return SE.pdfText(pg)}
+async function trWords(a){let c=0;for(const w of a){if(!saved[w])continue;try{const r=await tr(w);if(r&&r!=='—'&&saved[w]&&!saved[w].ar){saved[w].ar=r;if(++c%6===0)DB.set(saved)}}catch{}}DB.set(saved);if(st.view==='saved')savedView()}
+function impOpen(){const o=document.createElement('div');o.className='imm';const X=()=>o.remove();o.onclick=e=>{e.target===o&&X()};
+ o.innerHTML=`<div class="glass"><button class="rm ib" id="imx" aria-label="إغلاق" style="position:absolute;top:14px;left:14px">✕</button><h3 style="margin:0 0 6px">استيراد كلمات</h3><p class="mut" style="margin:0 0 10px;font-size:.9rem">الصق نصًا أو اختر ملف TXT أو PDF. إذا كان بجانب الكلمة ترجمة أو شرح آخذ الكلمة فقط. ملف النسخة الاحتياطية (JSON) يشتغل كالعادة.</p><div id="imb"><textarea id="imt" dir="auto" placeholder="apple - تفاح&#10;borrow : to take something and return it&#10;give up"></textarea><div class="row"><button class="pri" id="ima">${I('target')}حلّل النص</button><button class="pri" id="imp">${I('file')}اختر ملفًا</button></div><p class="mut" id="imn" style="min-height:1.2em;margin:6px 0 0"></p></div></div><input type="file" id="imf2" accept=".txt,.pdf,.json,text/plain,application/pdf,application/json" hidden>`;
+ document.body.appendChild(o);const q=s=>o.querySelector(s),ta=q('#imt'),nt=q('#imn');
+ function show(txt){const W=parseWords(txt);if(!W.length){nt.textContent='ما لقيت كلمات إنجليزية في المحتوى.';return}
+  const ex=w=>saved[w],dup=W.filter(ex).length;let N=W.slice();const b=q('#imb');
+  b.innerHTML=`<p style="margin:0 0 4px">عدد الكلمات في الملف: <b>${W.length}</b></p><p class="mut" style="margin:0 0 8px;font-size:.88rem">(الترجمة والشرح غير محسوبين${dup?` · ${dup} منها موجودة عندك مسبقًا`:''}) — احذف أي كلمة ما تبيها.</p><div id="iml" style="max-height:38vh;overflow:auto"></div><div class="row"><button class="pri" id="imts">${I('target')}اختبرني</button><button class="pri" id="imgo"></button></div>`;
+  const go=b.querySelector('#imgo'),ts=b.querySelector('#imts'),upd=()=>{const k=N.filter(w=>!ex(w)).length;go.textContent=`استيراد ${k} كلمة`;go.disabled=!k;ts.disabled=!N.length};
+  N.forEach(w=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<span class="w" lang="en">${esc(w)}</span>${ex(w)?'<small class="mut">موجودة</small>':''}<button class="rm ib" aria-label="حذف">✕</button>`;d.querySelector('button').onclick=()=>{N=N.filter(x=>x!==w);d.remove();upd()};b.querySelector('#iml').appendChild(d)});
+  upd();
+  go.onclick=()=>{const A=N.filter(w=>!ex(w));A.forEach(w=>{const t=trash[w];saved[w]=t?{...t,s:0}:{w,ar:'',sent:'',s:0};delete trash[w]});DB.set(saved);TR.set(trash);X();toast(`تم استيراد ${A.length} كلمة.`);savedView();trWords(A)};
+  ts.onclick=()=>{X();st.test=1;begin('w',shuffle(N).map(w=>{const x=saved[w]||trash[w]||{};return{w,sent:x.sent||'',ar:x.ar||tc[w]}}))}}
+ q('#imx').onclick=X;q('#imp').onclick=()=>q('#imf2').click();q('#ima').onclick=()=>show(ta.value);
+ q('#imf2').onchange=async e=>{const f=e.target.files[0];if(!f)return;const n=f.name.toLowerCase();
+  if(n.endsWith('.json')||f.type==='application/json'){X();return importData(f)}
+  nt.textContent='جاري القراءة…';try{show(n.endsWith('.pdf')||f.type==='application/pdf'?await pdfRaw(f):await f.text())}catch{nt.textContent='تعذّرت قراءة الملف. لملفات PDF تأكد من الاتصال بالإنترنت وجرّب مرة ثانية.'}}}
 function savedView(){const keep=st.view==='saved'?(($('.page')||{}).scrollTop||0):0;nav('saved');const all=Object.values(saved),L=all.filter(x=>!x.s),D=all.filter(x=>x.s),T=Object.values(trash);
  M.innerHTML=`<div class="page${keep?' still':''}"><h3>قائمة الحفظ (${L.length}) <button id="t1" ${L.length?'':'disabled'}>${I('target')}اختبرني</button></h3><div id="l1"></div><h3>تمت المراجعة (${D.length}) <button id="t2" ${D.length?'':'disabled'}>${I('target')}اختبرني</button></h3><div id="l2"></div><h3><button id="tb" class="${st.showTrash?'on':''}">${I('trash')}المحذوفات (${T.length})</button></h3><div id="l3"></div>
- <div class="row"><button id="hm">${I('home')}الرئيسية</button><button id="ex">${I('down')}نسخة احتياطية</button><button id="im">${I('up')}استيراد</button></div><input type="file" id="imf" accept="application/json,.json" hidden></div>`;
+ <div class="row"><button id="hm">${I('home')}الرئيسية</button><button id="ex">${I('down')}نسخة احتياطية</button><button id="im">${I('up')}استيراد</button></div></div>`;
  const empty=(id,t)=>{$(id).innerHTML=`<p class="mut" style="text-align:center">${t}</p>`};
  const fill=(id,arr,done)=>arr.forEach(x=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<span class="w" lang="en">${esc(x.w)}</span><span class="m">${esc(x.ar||'')}${x.sent?`<small>${esc(x.sent)}</small>`:''}</span><button class="sp ib" title="استمع" aria-label="استمع">${I('talk')}</button><button class="mv">${done?I('refresh')+'نسيتها':I('star')+'حفظتها'}</button><button class="rm ib" title="حذف" aria-label="حذف">✕</button>`;
   d.querySelector('.sp').onclick=e=>{e.currentTarget.blur();speak(x.w)};
@@ -829,7 +860,7 @@ function savedView(){const keep=st.view==='saved'?(($('.page')||{}).scrollTop||0
   T.forEach(x=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<span class="w" lang="en">${esc(x.w)}</span><span class="m">${esc(x.ar||'')}${x.sent?`<small>${esc(x.sent)}</small>`:''}</span><button class="rs">${I('refresh')}استرجاع</button>`;
    d.querySelector('.rs').onclick=()=>{if(!saved[x.w]){saved[x.w]=x;DB.set(saved)}delete trash[x.w];TR.set(trash);savedView()};$('#l3').appendChild(d)})}
  $('#tb').onclick=()=>{st.showTrash=!st.showTrash;savedView()};
- $('#hm').onclick=home;$('#ex').onclick=exportData;$('#im').onclick=()=>$('#imf').click();$('#imf').onchange=e=>e.target.files[0]&&importData(e.target.files[0]);
+ $('#hm').onclick=home;$('#ex').onclick=exportData;$('#im').onclick=impOpen;
  const t=a=>()=>{st.test=1;begin('w',shuffle(a).map(x=>({w:x.w,sent:x.sent,ar:x.ar})))};$('#t1').onclick=t(L);$('#t2').onclick=t(D);
  if(keep)$('.page').scrollTop=keep}
 (()=>{if(!matchMedia('(hover:hover) and (pointer:fine)').matches)return;document.documentElement.classList.add('fc');
