@@ -128,6 +128,35 @@ button.pri{padding:.8em 1.3em;font-size:1rem}
 .c{transition:color .15s,opacity .15s,filter .15s}
 .c.ghost{color:#6b7091}.c.hid{color:transparent}
 .c.ok{color:var(--ok);opacity:1;filter:none}.c.bad{color:#e28f91;opacity:.9;filter:none}.c.sp.bad{background:rgba(226,143,145,.22);border-radius:4px}
+/* انتقال الجملة: القديمة تنزاح لليمين وتخفت، والجديدة ترتفع وتظهر تدريجياً */
+.pane.out .tgt,.pane.out .ar,.pane.out h2,.pane.out .en,.pane.out .sent,.pane.out .vl,.pane.out .say{animation:snOut .38s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none}
+.pane.out #cur{opacity:0!important;transition:opacity .15s!important}
+.pane.enter .tgt,.pane.enter .ar,.pane.enter h2,.pane.enter .en,.pane.enter .sent,.pane.enter .vl,.pane.enter .say,.pane.enter #cur{animation:snIn .55s cubic-bezier(.2,.8,.2,1) backwards}
+.pane.enter .ar,.pane.enter .en,.pane.enter .say{animation-delay:.07s}
+.pane.enter #cur{animation-delay:.04s}
+@keyframes snOut{to{opacity:0;transform:translateX(56px);filter:blur(3px)}}
+@keyframes snIn{from{opacity:0;transform:translateY(16px);filter:blur(2px)}}
+/* حركة مخففة: بدون إزاحة أو blur، فقط تلاشي هادئ، بحيث يبقى انتقال الجملة (بالتخطي أو بإنهاء الكتابة) ظاهراً */
+@keyframes snOutR{to{opacity:0}}
+@keyframes snInR{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+.pane.out .tgt,.pane.out .ar,.pane.out h2,.pane.out .en,.pane.out .sent,.pane.out .vl,.pane.out .say{animation:snOutR .3s ease forwards!important;animation-duration:.3s!important}
+.pane.enter .tgt,.pane.enter .ar,.pane.enter h2,.pane.enter .en,.pane.enter .sent,.pane.enter .vl,.pane.enter .say,.pane.enter #cur{animation:snInR .4s ease backwards!important;animation-duration:.4s!important}
+}
+/* وضع الكلمات: ما يكتبه المستخدم يظهر بخط كبير بالمنتصف مكان الخط العامودي */
+.vl.bigw{position:relative;width:min(92vw,900px);height:96px;background:none;display:flex;align-items:center;justify-content:center;margin:22px 0}
+.bwl{position:absolute;left:50%;top:3px;bottom:3px;width:1px;background:rgba(255,255,255,.2);transition:opacity .18s}
+.bigw:not(.empty) .bwl{opacity:0}
+.bwt{display:inline-block;white-space:pre;font-family:"Inter",system-ui,sans-serif;font-weight:700;font-size:var(--fs,80px);line-height:1;letter-spacing:-.035em;color:#f1f2f6}
+.pane.solved .bwt::after{display:none}
+@keyframes bwBl{50%{opacity:0}}
+.bc{display:inline-block;transition:color .2s}
+.bc.new{animation:bcIn .16s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes bcIn{from{opacity:0;transform:translateY(.12em) scale(.92)}}
+.bc.ok{color:var(--ok)}.bc.bad{color:#e28f91}.bc.gh{color:rgba(255,255,255,.22)}
+.pane.solved .bc{color:var(--ok)}
+.pane.center .box .c{color:transparent}
+.pane.center.solved .box .c{color:var(--ok)}
 #cur{position:absolute;left:0;top:0;height:3px;width:0;border-radius:3px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.55);pointer-events:none;z-index:2}
 .say{margin:22px 0 0;color:var(--mut);font-size:.95rem}
 .ar{font-size:1.5rem;color:#b0b6d3;margin-top:20px;border-top:1px solid var(--bd);padding-top:24px;min-width:40%;max-width:800px;line-height:1.7}
@@ -655,33 +684,45 @@ function blank(it){let d=0;const h=(it.sent||'').split(' ').filter(Boolean).map(
 const same=it=>st.view==='play'&&st.items[st.idx]===it;
 const say=it=>it.o||it.s;
 const loadTr=it=>{const el=$('#ar');if(!el)return;tr(say(it)).then(t=>{if(!same(it)||!$('#ar'))return;el.textContent=t;el.style.cursor=t==='—'?'pointer':'';el.onclick=t==='—'?()=>{el.textContent='…';loadTr(it)}:null})};
-function item0(){if(st.idx>=st.items.length)return results();const it=st.items[st.idx];st.pos=0;st.typed=[];st.iw=new Set();st.shown=0;st.locked=false;st.ik=0;st.ih=0;st.it0=0;st.target=st.mode==='w'?it.w:it.s;
+function item0(){if(st.idx>=st.items.length)return results();const it=st.items[st.idx];st.pos=0;st.typed=[];st.iw=new Set();st.shown=0;st.locked=false;st.wg=[];st.ik=0;st.ih=0;st.it0=0;st.target=st.mode==='w'?it.w:it.s;
  $('#prog').textContent=`${st.idx+1}/${st.items.length}`;
  const pb=`<div class="pbar"><i style="width:${st.idx/st.items.length*100}%"></i></div>`,sb='<div class="stats" dir="ltr"><b id="wpm">0</b> WPM &nbsp;|&nbsp; <b id="acc">100%</b> ACC</div>';
  if(st.mode==='s'){M.innerHTML=`<section class="pane">${pb}<div class="tgt" dir="ltr" lang="en">${mk(it.s,st.hide?'hid':'ghost')}</div>${st.hide?'<p class="say">اكتب ما تسمعه. اضغط <kbd>Tab</kbd> لإظهار الجملة.</p>':''}${opt.tr?'<div class="ar" id="ar">…</div>':''}${sb}<div class="keyh">اضغط <kbd>\\</kbd> للاستماع · <kbd>Esc</kbd> للخروج</div></section>`;
   speak(say(it));if(opt.tr){loadTr(it);wtPre(it);for(let k=1;k<=2;k++){const nx=st.items[st.idx+k];nx&&setTimeout(()=>{tr(say(nx))},400*k)}}setCur()}
- else{M.innerHTML=`<section class="pane center">${pb}<h2 id="a1">…</h2><p class="ar" id="a2"></p><p class="en" id="a3" dir="ltr" lang="en"></p><div class="vl"></div><p class="sent" dir="ltr" lang="en">${blank(it)}</p>${st.test?`<div class="row" style="margin-top:22px"><button id="hb1">${I('target')}Hint</button><button id="hb2">${I('book')}أظهر الإجابة</button></div>`:''}<div class="keyh"><kbd>Tab</kbd> تلميح · <kbd>\\</kbd> للاستماع · <kbd>Esc</kbd> للخروج</div>${sb}</section>`;
-  (async()=>{const ar=it.ar||await tr(it.w);if(!same(it))return;$('#a1').textContent=ar;const d=await def(it.w);if(!same(it))return;$('#a3').textContent=d;const da=d?await tr(d):'';same(it)&&($('#a2').textContent=da)})();setCur();
+ else{M.innerHTML=`<section class="pane center">${pb}<h2 id="a1">…</h2><p class="ar" id="a2"></p><p class="en" id="a3" dir="ltr" lang="en"></p><div class="vl bigw empty" id="bw" dir="ltr" lang="en"><i class="bwl"></i><span class="bwt" id="bwt"></span></div><p class="sent" dir="ltr" lang="en">${blank(it)}</p>${st.test?`<div class="row" style="margin-top:22px"><button id="hb1">${I('target')}Hint</button><button id="hb2">${I('book')}أظهر الإجابة</button></div>`:''}<div class="keyh"><kbd>Tab</kbd> تلميح · <kbd>\\</kbd> للاستماع · <kbd>Esc</kbd> للخروج</div>${sb}</section>`;
+  (async()=>{const trR=async t=>{let r=await tr(t);for(let k=0;k<2&&r==='\u2014'&&same(it);k++){await new Promise(z=>setTimeout(z,1200*(k+1)));r=await tr(t)}return r};const ar=it.ar||await trR(it.w);if(!same(it))return;$('#a1').textContent=ar;const d=await def(it.w);if(!same(it))return;$('#a3').textContent=d;const da=d?await trR(d):'';same(it)&&($('#a2').textContent=da)})();setCur();
   if(st.test){$('#hb1').onclick=e=>{e.currentTarget.blur();hint(1)};$('#hb2').onclick=e=>{e.currentTarget.blur();toggleAns()}}}
  stats()}
+function bigSync(){if(st.mode!=='w')return;const bw=$('#bw'),t=$('#bwt');if(!bw||!t||!st.target)return;
+ const cs=chars(),want=[];
+ for(let i=0;i<st.target.length;i++){if(i<st.pos){const ch=st.typed[i]||'';{const g=ch.toLowerCase()===st.target[i].toLowerCase();want.push([g||!(st.wg&&st.wg[i])?ch:st.target[i],g?'ok':'bad'])}}else if(cs[i]&&cs[i].classList.contains('ghost'))want.push([st.target[i],'gh'])}
+ while(t.children.length>want.length)t.lastChild.remove();
+ want.forEach(([ch,cl],i)=>{let k=t.children[i];if(!k){k=document.createElement('b');k.className='bc new';t.appendChild(k)}
+  const x=ch===' '?'\u00a0':ch;if(k.textContent!==x)k.textContent=x;if(!k.classList.contains(cl)){k.classList.remove('ok','bad','gh');k.classList.add(cl)}});
+ bw.classList.toggle('empty',!want.length);
+ bw.style.setProperty('--fs',Math.max(30,Math.min(88,innerWidth*.88/(Math.max(st.target.length,3)*.58)))+'px')}
 function chars(){return st.mode==='s'?[...M.querySelectorAll('.tgt .c')]:[...M.querySelectorAll('.box .c')]}
 function noteWrong(i){const it=st.items[st.idx];if(st.mode==='w'){st.wrong.set(it.w,it);st.iw.add(0)}else{if(st.target[i]===' ')return;const wi=st.target.slice(0,i).split(' ').length-1,w=st.target.split(' ')[wi].toLowerCase();st.iw.add(wi);if(w.length>=3&&!st.wrong.has(w))st.wrong.set(w,{w,sent:st.target})}}
 function stats(){const live=st.act+(st.it0?Date.now()-st.it0:0);$('#wpm')&&($('#wpm').textContent=live>=1500?Math.round(st.ok/5/(live/60000)):0);$('#acc')&&($('#acc').textContent=(st.keys?Math.round(st.hit/st.keys*100):100)+'%')}
 function langWarn(){if(Date.now()-(langWarn.t||0)>4000){langWarn.t=Date.now();toast('لغة الكيبورد عربية. بدّلها إلى الإنجليزية وكمّل.')}}
 function press(k){if(st.pos>=st.target.length)return;if(k==='\u2019'||k==='\u2018')k="'";if(k.charCodeAt(0)>=0x600&&k.charCodeAt(0)<=0x6FF){langWarn();return}
  wt.hover=null;const now=Date.now();if(!st.t0)st.t0=now;if(!st.it0)st.it0=now;
- const cs=chars(),i=st.pos,el=cs[i],good=k.toLowerCase()===st.target[i].toLowerCase();st.keys++;st.ik++;st.typed.push(k);st.pos++;
+ const cs=chars(),i=st.pos,el=cs[i],good=k.toLowerCase()===st.target[i].toLowerCase();if(st.mode==='w')(st.wg||(st.wg=[]))[i]=el.classList.contains('ghost');st.keys++;st.ik++;st.typed.push(k);st.pos++;
  if(good){st.ok++;st.hit++;st.ih++;el.classList.add('ok');sfx.ok(i)}
  else{sfx.bad();noteWrong(i);el.classList.add('bad');if(st.mode==='w'||st.hide){el.style.display='inline-block';el.style.width=el.getBoundingClientRect().width+'px';el.textContent=k===' '?'·':k}}
  stats();setCur();
- if(st.pos===st.target.length&&st.typed.every((c,j)=>c.toLowerCase()===st.target[j].toLowerCase())){st.locked=true;
+ if(st.pos===st.target.length&&st.typed.every((c,j)=>c.toLowerCase()===st.target[j].toLowerCase())){st.locked=true;st.mode==='w'&&M.querySelector('.pane').classList.add('solved');
   const dt=now-st.it0;st.act+=dt;st.it0=0;st.res.push({wpm:Math.round(st.target.length/5/(Math.max(dt,400)/60000)),acc:Math.round(st.ih/st.ik*100)});stats();
-  st.nt+=st.target.split(' ').length;st.nw+=st.iw.size;setTimeout(sfx.done,120);const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):say(it));setTimeout(()=>{st.idx++;item()},1100)}}
-function curPos(){const pane=M.querySelector('.pane');if(!pane)return null;const cs=chars(),el=cs[st.pos];if(!el)return null;const pr=pane.getBoundingClientRect(),r=el.getClientRects()[0];
+  st.nt+=st.target.split(' ').length;st.nw+=st.iw.size;setTimeout(sfx.done,120);const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):say(it));setTimeout(advance,1100)}}
+function curPos(){const pane=M.querySelector('.pane');if(!pane)return null;
+ if(st.mode==='w'){if(st.pos>=st.target.length)return null;const bwt=$('#bwt'),bw=$('#bw');if(!bwt||!bw)return null;const pr=pane.getBoundingClientRect(),fs=parseFloat(getComputedStyle(bwt).fontSize)||60,W=Math.round(fs*.5);
+  if(!st.pos)return null;const k=bwt.children[st.pos-1];if(!k)return null;const r=bw.getBoundingClientRect(),t=bwt.getBoundingClientRect();return{L:r.left-pr.left+k.offsetLeft+k.offsetWidth+fs*.05,W,T:t.bottom-pr.top+6}}
+const cs=chars(),el=cs[st.pos];if(!el)return null;const pr=pane.getBoundingClientRect(),r=el.getClientRects()[0];
  if(!r||r.width<1.5){const pv=cs[st.pos-1]||el,q=pv.getBoundingClientRect(),f=parseFloat(getComputedStyle(pv).fontSize)*.3;return{L:q.right-pr.left,W:f,T:q.bottom-pr.top+2}}
  return{L:r.left-pr.left,W:r.width,T:r.bottom-pr.top+2}}
 function setCur(snap){const pane=M.querySelector('.pane');if(!pane)return;wtSync(snap===1);let c=pane.querySelector('#cur');const fresh=!c;
  if(fresh){c=document.createElement('i');c.id='cur';pane.appendChild(c);st.ro&&st.ro.disconnect();st.ro=new ResizeObserver(()=>setCur(1));[...pane.children].forEach(k=>{if(!k.matches('.stats,.keyh,#cur'))st.ro.observe(k)})}
+ if(st.mode==='w')bigSync();
  const p=curPos();if(!p){c.style.opacity=0;c._p=null;return}
  const o=c._p;c._p=p;clearTimeout(c._t);c.style.opacity=1;
  const put=(l,w,t)=>{c.style.left=l+'px';c.style.width=w+'px';c.style.top=t+'px'};
@@ -780,8 +821,8 @@ document.addEventListener('click',e=>{const d=e.target.closest&&e.target.closest
  const ws=[...M.querySelectorAll('.tgt .wd')],w=wtClean(st.target.split(' ')[ws.indexOf(d)]);if(!w)return;
  speak(w);d.classList.remove('wp');void d.offsetWidth;d.classList.add('wp');
  if(matchMedia('(pointer:coarse)').matches){wt.hover=d;wtSync();clearTimeout(wt.t);wt.t=setTimeout(()=>{wt.hover=null;wtSync()},2600)}});
-function hint(one){if(st.locked)return;noteWrong(st.mode==='s'?Math.min(st.pos,st.target.length-1):0);const cs=chars();for(let i=st.pos;i<cs.length;i++)if(cs[i].classList.contains('hid')){cs[i].classList.replace('hid','ghost');if(one)break}}
-function toggleAns(){if(st.locked)return;const b=$('#hb2'),L=st.mode==='s'?['أظهر الجملة','أخفِ الجملة']:['أظهر الإجابة','أخفِ الإجابة'];if(st.shown){chars().forEach((c,i)=>i>=st.pos&&c.classList.replace('ghost','hid'));st.shown=0}else{hint(0);st.shown=1}b&&(b.lastChild.textContent=L[st.shown])}
+function hint(one){if(st.locked)return;noteWrong(st.mode==='s'?Math.min(st.pos,st.target.length-1):0);const cs=chars();for(let i=st.pos;i<cs.length;i++)if(cs[i].classList.contains('hid')){cs[i].classList.replace('hid','ghost');if(one)break}bigSync()}
+function toggleAns(){if(st.locked)return;const b=$('#hb2'),L=st.mode==='s'?['أظهر الجملة','أخفِ الجملة']:['أظهر الإجابة','أخفِ الإجابة'];if(st.shown){chars().forEach((c,i)=>i>=st.pos&&c.classList.replace('ghost','hid'));st.shown=0;bigSync()}else{hint(0);st.shown=1}b&&(b.lastChild.textContent=L[st.shown])}
 function back(){if(!st.pos)return;const i=--st.pos,el=chars()[i],was=el.classList.contains('ok');st.typed.pop();if(was)st.ok--;el.classList.remove('ok','bad');el.style.display=el.style.width='';el.textContent=st.target[i];stats();setCur()}
 addEventListener('keydown',e=>{if(e.key==='Escape'&&st.view==='play'){e.preventDefault();home();return}
  if(st.view!=='play'||st.locked)return;
@@ -911,7 +952,12 @@ kb.addEventListener('input',()=>{if(st.view!=='play'||st.locked){kbReset();retur
 function addTools(){const p=M.querySelector('.pane');if(!p)return;const w=document.createElement('div');w.className='tools';
  const add=(t,ic,fn)=>{const b=document.createElement('button');b.className='ib';b.title=t;b.setAttribute('aria-label',t);b.innerHTML=I(ic);b.onclick=e=>{e.stopPropagation();e.currentTarget.blur();fn();coarse&&st.view==='play'&&kb.focus({preventScroll:true})};w.appendChild(b)};
  add('الرئيسية','home',home);add('استمع','talk',()=>{const it=st.items[st.idx];speak(st.mode==='w'?(it.sent||it.w):say(it))});add('تخطَّ هذه الجملة','skip',skip);p.appendChild(w)}
-function skip(){if(st.locked||st.view!=='play')return;if(st.it0){st.act+=Date.now()-st.it0;st.it0=0}st.res.push({skip:1});st.idx++;item()}
+function advance(){const p=M.querySelector('.pane');
+ if(st.view!=='play'||!p){st.idx++;item();return}
+ const b=p.querySelector('.pbar i');b&&(b.style.width=((st.idx+1)/st.items.length*100)+'%');
+ st.locked=true;p.classList.add('out');
+ setTimeout(()=>{if(st.view!=='play')return;st.idx++;item();const n=M.querySelector('.pane');if(n&&n!==p){n.classList.add('enter');setTimeout(()=>n.classList.remove('enter'),900)}},380)}
+function skip(){if(st.locked||st.view!=='play')return;if(st.it0){st.act+=Date.now()-st.it0;st.it0=0}st.res.push({skip:1});advance()}
 function item(){kbReset();item0();if(st.view==='play'&&M.querySelector('.pane')){addTools();coarse&&kb.focus({preventScroll:true})}}
 M.addEventListener('click',()=>{coarse&&st.view==='play'&&kb.focus({preventScroll:true})});
 if(coarse&&window.visualViewport){const f=()=>{document.documentElement.style.setProperty('--vh',visualViewport.height+'px');scrollTo(0,0)};visualViewport.addEventListener('resize',f);f()}
