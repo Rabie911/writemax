@@ -702,7 +702,12 @@ function bigSync(){if(st.mode!=='w')return;const bw=$('#bw'),t=$('#bwt');if(!bw|
  bw.classList.toggle('empty',!want.length);
  bw.style.setProperty('--fs',Math.max(30,Math.min(88,innerWidth*.88/(Math.max(st.target.length,3)*.58)))+'px')}
 function chars(){return st.mode==='s'?[...M.querySelectorAll('.tgt .c')]:[...M.querySelectorAll('.box .c')]}
-function noteWrong(i){const it=st.items[st.idx];if(st.mode==='w'){st.wrong.set(it.w,it);st.iw.add(0)}else{if(st.target[i]===' ')return;const wi=st.target.slice(0,i).split(' ').length-1,w=st.target.split(' ')[wi].toLowerCase();st.iw.add(wi);if(w.length>=3&&!st.wrong.has(w))st.wrong.set(w,{w,sent:st.target})}}
+const NAMESET=new Set('maya lina sara nora hana layla amira zara mia ella rania salma dina lara omar karim adam yusuf sami leo noah tariq ben ali hamza jad fadi rami'.split(' '));
+const nameCore=t=>t.replace(/^[^A-Za-z]+|[^A-Za-z']+$/g,'').replace(/['\u2019]s$/i,'');
+const isCap=c=>/^[A-Z][a-z]+$/.test(c);
+function storyNames(){if(st._nmItems!==st.items){const S=new Set();for(const x of st.items||[]){const ws=String(x.s||'').split(' ');ws.forEach((t,k)=>{if(k>0&&!/[.!?:]["'\u201d\u2019]?$/.test(ws[k-1])){const c=nameCore(t);if(isCap(c))S.add(c.toLowerCase())}})}st._nmItems=st.items;st._nm=S}return st._nm}
+function isPersonName(tok,wi){const c=nameCore(tok);if(!isCap(c))return false;const l=c.toLowerCase();if(NAMESET.has(l)||storyNames().has(l))return true;if(wi>0){const p=st.target.split(' ')[wi-1]||'';return !/[.!?:]["'\u201d\u2019]?$/.test(p)}return false}
+function noteWrong(i){const it=st.items[st.idx];if(st.mode==='w'){st.wrong.set(it.w,it);st.iw.add(0)}else{if(st.target[i]===' ')return;const wi=st.target.slice(0,i).split(' ').length-1,tok=st.target.split(' ')[wi],w=tok.toLowerCase();if(isPersonName(tok,wi))return;st.iw.add(wi);if(w.length>=1&&!st.wrong.has(w))st.wrong.set(w,{w,sent:st.target})}}
 function stats(){const live=st.act+(st.it0?Date.now()-st.it0:0);$('#wpm')&&($('#wpm').textContent=live>=1500?Math.round(st.ok/5/(live/60000)):0);$('#acc')&&($('#acc').textContent=(st.keys?Math.round(st.hit/st.keys*100):100)+'%')}
 function langWarn(){if(Date.now()-(langWarn.t||0)>4000){langWarn.t=Date.now();toast('لغة الكيبورد عربية. بدّلها إلى الإنجليزية وكمّل.')}}
 function press(k){if(st.pos>=st.target.length)return;if(k==='\u2019'||k==='\u2018')k="'";if(k.charCodeAt(0)>=0x600&&k.charCodeAt(0)<=0x6FF){langWarn();return}
